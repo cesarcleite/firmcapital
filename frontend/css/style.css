@@ -1,0 +1,50 @@
+:root {
+  --gray-dark: #2d2d2d;
+  --gray-medium: #4a4a4a;
+  --beige: #f4f1ea;
+  --accent-gold: #c5a47e;
+  --text-dark: #333;
+  --text-light: #fff;
+  --font-primary: "Roboto", sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  font-weight: 400;
+  line-height: 1.6;
+  background-color: var(--beige);
+  color: var(--text-dark);
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 14px 32px;
+  background-color: var(--accent-gold);
+  color: var(--text-light);
+  text-decoration: none;
+  border-radius: 30px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.cta-button:hover {
+  background-color: var(--gray-medium);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+#servicos,
+#portfolio,
+#clientes,
+#contato {
+  scroll-margin-top: 50px;
+}

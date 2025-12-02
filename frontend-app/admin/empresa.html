@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configurações da Empresa - Firm Capital</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+
+    <style>
+      /* Accordion */
+      .accordion {
+        margin-bottom: 1.5rem;
+      }
+
+      .accordion-item {
+        background: var(--beige);
+        border: 1px solid var(--beige-darker);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        overflow: hidden;
+        transition: all 0.2s ease;
+      }
+
+      .accordion-item:hover {
+        box-shadow: var(--shadow-sm);
+      }
+
+      .accordion-header {
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--beige-dark);
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+
+      .accordion-header:hover {
+        background: var(--beige-darker);
+      }
+
+      .accordion-header i:first-child {
+        color: var(--accent-gold);
+        font-size: 1.1rem;
+      }
+
+      .accordion-header span {
+        flex: 1;
+        font-weight: 500;
+        color: var(--gray-dark);
+        font-size: 0.95rem;
+      }
+
+      .accordion-icon {
+        color: var(--gray-medium);
+        transition: transform 0.3s ease;
+        font-size: 0.9rem;
+      }
+
+      .accordion-item.active .accordion-icon {
+        transform: rotate(180deg);
+      }
+
+      .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+
+      .accordion-item.active .accordion-content {
+        max-height: 2000px;
+      }
+
+      .accordion-content-inner {
+        padding: 1.25rem;
+      }
+
+      /* Upload Areas */
+      .upload-area {
+        border: 2px dashed var(--beige-darker);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: var(--beige-dark);
+      }
+
+      .upload-area:hover {
+        border-color: var(--accent-gold);
+        background: var(--beige);
+      }
+
+      .upload-area.dragover {
+        border-color: var(--accent-gold);
+        background: rgba(197, 164, 126, 0.1);
+      }
+
+      .upload-icon {
+        font-size: 3rem;
+        color: var(--accent-gold);
+        margin-bottom: 1rem;
+      }
+
+      .upload-text {
+        color: var(--gray-medium);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+
+      .upload-hint {
+        font-size: 0.85rem;
+        color: var(--gray-light);
+      }
+
+      .logo-preview {
+        max-width: 200px;
+        max-height: 150px;
+        margin: 1rem auto;
+        display: block;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .logo-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+
+      /* Color Pickers */
+      .color-picker-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: var(--beige-dark);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border: 1px solid var(--beige-darker);
+      }
+
+      .color-picker-group label {
+        flex: 1;
+        margin: 0 !important;
+        font-weight: 500;
+        color: var(--gray-dark);
+      }
+
+      .color-picker-group input[type="color"] {
+        width: 80px;
+        height: 50px;
+        border: 2px solid var(--beige-darker);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .color-picker-group input[type="color"]:hover {
+        border-color: var(--accent-gold);
+      }
+
+      .color-preview {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        border: 2px solid var(--beige-darker);
+        box-shadow: var(--shadow-sm);
+      }
+
+      /* Form Row */
+      .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      /* Info Box */
+      .info-box {
+        background: rgba(197, 164, 126, 0.08);
+        border: 1px solid rgba(197, 164, 126, 0.3);
+        border-left: 4px solid var(--accent-gold);
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+      }
+
+      .info-box p {
+        margin: 0;
+        color: var(--gray-medium);
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .info-box i {
+        color: var(--accent-gold);
+        margin-right: 0.5rem;
+      }
+
+      /* Toggle Switch */
+      .toggle-group {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        background: var(--beige-dark);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border: 1px solid var(--beige-darker);
+      }
+
+      .toggle-group label {
+        margin: 0 !important;
+        cursor: pointer;
+        user-select: none;
+        font-weight: 500;
+        color: var(--gray-dark);
+      }
+
+      .toggle-switch {
+        position: relative;
+        width: 50px;
+        height: 26px;
+        display: inline-block;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--beige-darker);
+        transition: 0.3s;
+        border-radius: 26px;
+      }
+
+      .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .toggle-switch input:checked + .toggle-slider {
+        background-color: var(--accent-gold);
+      }
+
+      .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+      }
+
+      /* Hidden Input */
+      .hidden-input {
+        display: none;
+      }
+
+      /* Checkbox Group */
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--beige-dark);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border: 1px solid var(--beige-darker);
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .checkbox-group label {
+        margin: 0 !important;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      /* Logo Grid */
+      .logo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .logo-card h3 {
+        margin: 0 0 1rem 0;
+        color: var(--gray-dark);
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--beige-darker);
+      }
+
+      @media (max-width: 768px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .logo-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .action-buttons .btn {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="../images/logos/logo_firm.png"
+            alt="Firm Capital"
+            class="sidebar-logo"
+          />
+          <h1 class="sidebar-title">Firm Capital</h1>
+          <p class="sidebar-subtitle">Painel Administrativo</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <a href="dashboard.html" class="nav-item">
+              <i class="fas fa-home"></i>
+              <span class="nav-item-text">Dashboard</span>
+            </a>
+            <a href="usuarios.html" class="nav-item">
+              <i class="fas fa-users"></i>
+              <span class="nav-item-text">Usuários</span>
+            </a>
+            <a href="clientes.html" class="nav-item">
+              <i class="fas fa-user-tie"></i>
+              <span class="nav-item-text">Clientes</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Simulações</div>
+            <a href="simulacoes.html" class="nav-item">
+              <i class="fas fa-list"></i>
+              <span class="nav-item-text">Todas Simulações</span>
+            </a>
+            <a href="../simuladores/index.html" class="nav-item">
+              <i class="fas fa-building"></i>
+              <span class="nav-item-text">Nova Simulação</span>
+            </a>
+            <a href="tipos-fundos.html" class="nav-item">
+              <i class="fas fa-cog"></i>
+              <span class="nav-item-text">Tipos de Fundos</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Configurações</div>
+            <a href="empresa.html" class="nav-item active">
+              <i class="fas fa-building-columns"></i>
+              <span class="nav-item-text">Empresa</span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar">FC</div>
+            <div class="user-details">
+              <div class="user-name">Carregando...</div>
+              <div class="user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <div class="sidebar-overlay"></div>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="menu-toggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Configurações da Empresa</h1>
+          </div>
+          <div class="topbar-right">
+            <button class="btn" onclick="salvarEmpresa()">
+              <i class="fas fa-save"></i> Salvar Alterações
+            </button>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <!-- Informação -->
+          <div class="info-box">
+            <p>
+              <i class="fas fa-info-circle"></i>
+              Configure aqui as informações da sua empresa, logos e cores do
+              tema. Estas configurações serão aplicadas em todo o sistema e nos
+              relatórios gerados.
+            </p>
+          </div>
+
+          <!-- Personalização Visual -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-palette"></i>
+                Cores do Tema
+              </h2>
+              <div class="content-card-actions">
+                <button class="btn btn-outline" onclick="resetarCores()">
+                  <i class="fas fa-undo"></i> Restaurar Padrão
+                </button>
+              </div>
+            </div>
+            <div class="content-card-body">
+              <div class="color-picker-group">
+                <label>Cor Primária</label>
+                <input type="color" id="corPrimaria" value="#2d2d2d" />
+                <div
+                  class="color-preview"
+                  id="previewPrimaria"
+                  style="background: #2d2d2d"
+                ></div>
+              </div>
+
+              <div class="color-picker-group">
+                <label>Cor Secundária</label>
+                <input type="color" id="corSecundaria" value="#c5a47e" />
+                <div
+                  class="color-preview"
+                  id="previewSecundaria"
+                  style="background: #c5a47e"
+                ></div>
+              </div>
+
+              <div class="color-picker-group">
+                <label>Cor de Fundo</label>
+                <input type="color" id="corFundo" value="#f4f1ea" />
+                <div
+                  class="color-preview"
+                  id="previewFundo"
+                  style="background: #f4f1ea"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Logos -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-image"></i>
+                Logos da Empresa
+              </h2>
+            </div>
+            <div class="content-card-body">
+              <div class="logo-grid">
+                <!-- Logo Claro -->
+                <div class="logo-card">
+                  <h3>Logo Claro (Fundo Escuro)</h3>
+                  <div class="upload-area" id="uploadAreaClaro">
+                    <input
+                      type="file"
+                      id="logoClaro"
+                      class="hidden-input"
+                      accept="image/*"
+                      onchange="handleLogoUpload(event, 'claro')"
+                    />
+                    <div id="previewClaro">
+                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                      <p class="upload-text">
+                        Clique ou arraste para fazer upload
+                      </p>
+                      <p class="upload-hint">PNG, JPG ou SVG (máx. 2MB)</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Logo Escuro -->
+                <div class="logo-card">
+                  <h3>Logo Escuro (Fundo Claro)</h3>
+                  <div class="upload-area" id="uploadAreaEscuro">
+                    <input
+                      type="file"
+                      id="logoEscuro"
+                      class="hidden-input"
+                      accept="image/*"
+                      onchange="handleLogoUpload(event, 'escuro')"
+                    />
+                    <div id="previewEscuro">
+                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                      <p class="upload-text">
+                        Clique ou arraste para fazer upload
+                      </p>
+                      <p class="upload-hint">PNG, JPG ou SVG (máx. 2MB)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dados da Empresa -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-building"></i>
+                Dados da Empresa
+              </h2>
+            </div>
+            <div class="content-card-body">
+              <form id="formEmpresa">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="nome">Razão Social *</label>
+                    <input type="text" id="nome" required />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="nomeFantasia">Nome Fantasia</label>
+                    <input type="text" id="nomeFantasia" />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="cnpj">CNPJ *</label>
+                    <input type="text" id="cnpj" required />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="email">E-mail *</label>
+                    <input type="email" id="email" required />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="text" id="telefone" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="site">Website</label>
+                    <input type="url" id="site" placeholder="https://" />
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Endereço -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-map-marker-alt"></i>
+                Endereço
+              </h2>
+            </div>
+            <div class="content-card-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="rua">Rua</label>
+                  <input type="text" id="rua" />
+                </div>
+
+                <div class="form-group">
+                  <label for="numero">Número</label>
+                  <input type="text" id="numero" />
+                </div>
+
+                <div class="form-group">
+                  <label for="complemento">Complemento</label>
+                  <input type="text" id="complemento" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="bairro">Bairro</label>
+                  <input type="text" id="bairro" />
+                </div>
+
+                <div class="form-group">
+                  <label for="cidade">Cidade</label>
+                  <input type="text" id="cidade" />
+                </div>
+
+                <div class="form-group">
+                  <label for="estado">Estado</label>
+                  <input
+                    type="text"
+                    id="estado"
+                    maxlength="2"
+                    placeholder="UF"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="cep">CEP</label>
+                  <input type="text" id="cep" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informações para Relatórios -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-file-alt"></i>
+                Informações para Relatórios
+              </h2>
+            </div>
+            <div class="content-card-body">
+              <div class="info-box">
+                <p>
+                  <i class="fas fa-info-circle"></i>
+                  Estas informações serão exibidas no rodapé dos relatórios e
+                  documentos gerados pelo sistema.
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label for="rodapeRelatorio">Texto do Rodapé</label>
+                <textarea
+                  id="rodapeRelatorio"
+                  rows="3"
+                  placeholder="Ex: Nome da Empresa - Consultoria em Investimentos | www.seusite.com.br | contato@seusite.com.br"
+                ></textarea>
+              </div>
+
+              <div class="toggle-group">
+                <label for="incluirEndereco"
+                  >Incluir endereço completo nos relatórios</label
+                >
+                <label class="toggle-switch">
+                  <input type="checkbox" id="incluirEndereco" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-group">
+                <label for="incluirLogo">Incluir logo nos relatórios</label>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="incluirLogo" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botões de Ação -->
+          <div class="action-buttons">
+            <button class="btn btn-secondary" onclick="carregarEmpresa()">
+              <i class="fas fa-undo"></i> Descartar Alterações
+            </button>
+            <button class="btn" onclick="salvarEmpresa()">
+              <i class="fas fa-save"></i> Salvar Configurações
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/empresa-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js"></script>
+
+    <script>
+      // Proteger página - apenas admin
+      auth.requireAuth([ROLES.ADMIN]);
+
+      let empresaData = {};
+      let uploadedLogos = {
+        claro: null,
+        escuro: null,
+      };
+
+      // Carregar dados da empresa
+      async function carregarEmpresa() {
+        try {
+          showLoading("Carregando configurações...");
+          const response = await api.getEmpresa();
+
+          if (response.success) {
+            empresaData = response.data;
+            console.log("📦 Dados da empresa:", empresaData);
+            console.log("🖼️ Logo Claro:", empresaData.configuracoes?.logoClaro);
+            console.log(
+              "🖼️ Logo Escuro:",
+              empresaData.configuracoes?.logoEscuro
+            );
+            preencherFormulario(empresaData);
+          }
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      // Preencher formulário com dados
+      function preencherFormulario(data) {
+        // Dados básicos
+        document.getElementById("nome").value = data.nome || "";
+        document.getElementById("nomeFantasia").value = data.nomeFantasia || "";
+        document.getElementById("cnpj").value = data.cnpj || "";
+        document.getElementById("email").value = data.email || "";
+        document.getElementById("telefone").value = data.telefone || "";
+        document.getElementById("site").value = data.site || "";
+
+        // Endereço
+        if (data.endereco) {
+          document.getElementById("rua").value = data.endereco.rua || "";
+          document.getElementById("numero").value = data.endereco.numero || "";
+          document.getElementById("complemento").value =
+            data.endereco.complemento || "";
+          document.getElementById("bairro").value = data.endereco.bairro || "";
+          document.getElementById("cidade").value = data.endereco.cidade || "";
+          document.getElementById("estado").value = data.endereco.estado || "";
+          document.getElementById("cep").value = data.endereco.cep || "";
+        }
+
+        // Cores
+        if (data.configuracoes?.coresPersonalizadas) {
+          const cores = data.configuracoes.coresPersonalizadas;
+          document.getElementById("corPrimaria").value =
+            cores.primaria || "#2d2d2d";
+          document.getElementById("corSecundaria").value =
+            cores.secundaria || "#c5a47e";
+          document.getElementById("corFundo").value = cores.fundo || "#f4f1ea";
+          atualizarPreviewCores();
+        }
+
+        // Logos - CORRIGIDO
+        if (data.configuracoes?.logoClaro) {
+          mostrarPreviewLogo("claro", data.configuracoes.logoClaro);
+        }
+        if (data.configuracoes?.logoEscuro) {
+          mostrarPreviewLogo("escuro", data.configuracoes.logoEscuro);
+        }
+      }
+
+      // Atualizar preview de cores
+      function atualizarPreviewCores() {
+        document.getElementById("previewPrimaria").style.background =
+          document.getElementById("corPrimaria").value;
+        document.getElementById("previewSecundaria").style.background =
+          document.getElementById("corSecundaria").value;
+        document.getElementById("previewFundo").style.background =
+          document.getElementById("corFundo").value;
+      }
+
+      // Event listeners para cores
+      document
+        .getElementById("corPrimaria")
+        .addEventListener("input", atualizarPreviewCores);
+      document
+        .getElementById("corSecundaria")
+        .addEventListener("input", atualizarPreviewCores);
+      document
+        .getElementById("corFundo")
+        .addEventListener("input", atualizarPreviewCores);
+
+      // Resetar cores para padrão
+      async function resetarCores() {
+        const confirmed = await confirmAction({
+          title: "Restaurar Cores Padrão",
+          message:
+            "Tem certeza que deseja restaurar as cores padrão do sistema?",
+          confirmText: "Restaurar",
+          cancelText: "Cancelar",
+          type: "warning",
+        });
+
+        if (confirmed) {
+          document.getElementById("corPrimaria").value = "#2d2d2d";
+          document.getElementById("corSecundaria").value = "#c5a47e";
+          document.getElementById("corFundo").value = "#f4f1ea";
+          atualizarPreviewCores();
+          showToast(
+            "Cores restauradas! Clique em Salvar para aplicar.",
+            "info"
+          );
+        }
+      }
+
+      // Handle upload de logo
+      async function handleLogoUpload(event, tipo) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validar tamanho (2MB)
+        if (file.size > 2 * 1024 * 1024) {
+          showToast("Arquivo muito grande. Máximo 2MB.", "error");
+          return;
+        }
+
+        // Validar tipo
+        if (!file.type.startsWith("image/")) {
+          showToast("Por favor, selecione uma imagem válida.", "error");
+          return;
+        }
+
+        try {
+          showLoading("Fazendo upload do logo...");
+
+          // Criar FormData para upload
+          const formData = new FormData();
+          formData.append("logo", file);
+          formData.append("tipo", tipo);
+
+          // Fazer upload via fetch (API não suporta FormData nativamente)
+          const token = api.getToken();
+          const response = await fetch(
+            `${api.baseURL}/admin/empresa/upload-logo`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              body: formData,
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success) {
+            uploadedLogos[tipo] = data.data.path;
+            mostrarPreviewLogo(tipo, data.data.path);
+            showToast(`Logo ${tipo} enviado com sucesso!`, "success");
+          } else {
+            throw new Error(data.error || "Erro ao fazer upload");
+          }
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      // Mostrar preview do logo - SOLUÇÃO DEFINITIVA
+      function mostrarPreviewLogo(tipo, path) {
+        const previewId = tipo === "claro" ? "previewClaro" : "previewEscuro";
+        const preview = document.getElementById(previewId);
+
+        if (!path) {
+          console.warn(`⚠️ Logo ${tipo} não tem caminho definido`);
+          return;
+        }
+
+        // Construir URL correta
+        let imageUrl;
+
+        if (path.startsWith("http")) {
+          // URL completa
+          imageUrl = path;
+        } else {
+          // Caminho relativo - construir URL do backend
+          const baseURL = api.baseURL.replace("/api", "");
+
+          // Garantir que o path começa com /
+          const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
+          imageUrl = `${baseURL}${cleanPath}`;
+        }
+
+        // Adicionar timestamp para evitar cache
+        const cacheBuster = `?t=${Date.now()}`;
+        const finalUrl = imageUrl + cacheBuster;
+
+        console.log(`🖼️ Carregando logo ${tipo}:`, finalUrl);
+
+        preview.innerHTML = `
+          <img 
+            src="${finalUrl}" 
+            class="logo-preview" 
+            alt="Logo ${tipo}" 
+            crossorigin="anonymous"
+            onload="console.log('✅ Logo ${tipo} carregado com sucesso')"
+            onerror="handleLogoError(this, '${tipo}', '${imageUrl}')"
+          />
+          <div class="logo-actions">
+            <button class="btn btn-outline" onclick="event.stopPropagation(); document.getElementById('logo${
+              tipo === "claro" ? "Claro" : "Escuro"
+            }').click()">
+              <i class="fas fa-upload"></i> Alterar
+            </button>
+            <button class="btn btn-danger" onclick="event.stopPropagation(); removerLogo('${tipo}')">
+              <i class="fas fa-trash"></i> Remover
+            </button>
+          </div>
+        `;
+      }
+
+      // Handler de erro do logo
+      function handleLogoError(img, tipo, originalUrl) {
+        console.error(`❌ Erro ao carregar logo ${tipo}:`, originalUrl);
+        const preview = img.parentElement;
+        preview.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--error);">
+            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <p style="margin: 0; font-weight: 500;">Erro ao carregar logo ${tipo}</p>
+            <p style="margin: 0.5rem 0; font-size: 0.85rem; color: var(--gray-medium);">
+              URL tentada: ${originalUrl}
+            </p>
+            <button class="btn btn-outline" style="margin-top: 1rem;" onclick="document.getElementById('logo${
+              tipo === "claro" ? "Claro" : "Escuro"
+            }').click()">
+              <i class="fas fa-upload"></i> Fazer novo upload
+            </button>
+          </div>
+        `;
+      }
+
+      // Remover logo
+      async function removerLogo(tipo) {
+        const confirmed = await confirmAction({
+          title: "Remover Logo",
+          message: `Tem certeza que deseja remover o logo ${tipo}?`,
+          confirmText: "Remover",
+          cancelText: "Cancelar",
+          type: "danger",
+          isDanger: true,
+        });
+
+        if (!confirmed) return;
+
+        try {
+          showLoading("Removendo logo...");
+
+          const token = api.getToken();
+          const response = await fetch(
+            `${api.baseURL}/admin/empresa/logo/${tipo}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success) {
+            uploadedLogos[tipo] = null;
+            const previewId =
+              tipo === "claro" ? "previewClaro" : "previewEscuro";
+            document.getElementById(previewId).innerHTML = `
+              <i class="fas fa-cloud-upload-alt upload-icon"></i>
+              <p class="upload-text">Clique ou arraste para fazer upload</p>
+              <p class="upload-hint">PNG, JPG ou SVG (máx. 2MB)</p>
+            `;
+            showToast("Logo removido com sucesso!", "success");
+          }
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      // Salvar configurações da empresa - COM APLICAÇÃO IMEDIATA
+      async function salvarEmpresa() {
+        const form = document.getElementById("formEmpresa");
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        const data = {
+          nome: document.getElementById("nome").value.trim(),
+          nomeFantasia: document.getElementById("nomeFantasia").value.trim(),
+          cnpj: document.getElementById("cnpj").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          telefone: document.getElementById("telefone").value.trim(),
+          site: document.getElementById("site").value.trim(),
+          endereco: {
+            rua: document.getElementById("rua").value.trim(),
+            numero: document.getElementById("numero").value.trim(),
+            complemento: document.getElementById("complemento").value.trim(),
+            bairro: document.getElementById("bairro").value.trim(),
+            cidade: document.getElementById("cidade").value.trim(),
+            estado: document
+              .getElementById("estado")
+              .value.trim()
+              .toUpperCase(),
+            cep: document.getElementById("cep").value.trim(),
+          },
+          configuracoes: {
+            logoClaro: empresaData.configuracoes?.logoClaro || null,
+            logoEscuro: empresaData.configuracoes?.logoEscuro || null,
+            coresPersonalizadas: {
+              primaria: document.getElementById("corPrimaria").value,
+              secundaria: document.getElementById("corSecundaria").value,
+              fundo: document.getElementById("corFundo").value,
+            },
+          },
+        };
+
+        try {
+          showLoading("Salvando configurações...");
+          const response = await api.updateEmpresa(data);
+
+          if (response.success) {
+            empresaData = response.data;
+
+            // ✨ APLICAR MUDANÇAS IMEDIATAMENTE
+            // Limpar cache antigo
+            empresaConfig.clearCache();
+
+            // Salvar novo config no cache
+            empresaConfig.config = response.data;
+            empresaConfig.loaded = true;
+            empresaConfig.saveToCache(response.data);
+
+            // Aplicar cores imediatamente
+            await empresaConfig.aplicarCores();
+
+            // Aplicar logos imediatamente
+            await empresaConfig.aplicarLogos();
+
+            hideLoading();
+            showToast("Configurações aplicadas com sucesso! ✨", "success");
+
+            console.log("✅ Configurações salvas e aplicadas imediatamente");
+          }
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      // Drag and drop para upload areas
+      function setupDragDrop() {
+        ["claro", "escuro"].forEach((tipo) => {
+          const uploadArea = document.getElementById(
+            `uploadArea${tipo === "claro" ? "Claro" : "Escuro"}`
+          );
+          const inputId = `logo${tipo === "claro" ? "Claro" : "Escuro"}`;
+
+          // Click para abrir file picker
+          uploadArea.addEventListener("click", (e) => {
+            // Não abrir file picker se clicar em um botão
+            if (e.target.tagName === "BUTTON" || e.target.closest("button")) {
+              return;
+            }
+            document.getElementById(inputId).click();
+          });
+
+          uploadArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadArea.classList.add("dragover");
+          });
+
+          uploadArea.addEventListener("dragleave", () => {
+            uploadArea.classList.remove("dragover");
+          });
+
+          uploadArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove("dragover");
+
+            const file = e.dataTransfer.files[0];
+            if (file) {
+              const input = document.getElementById(inputId);
+              const dataTransfer = new DataTransfer();
+              dataTransfer.items.add(file);
+              input.files = dataTransfer.files;
+
+              handleLogoUpload({ target: input }, tipo);
+            }
+          });
+        });
+      }
+
+      // Inicializar página
+      document.addEventListener("DOMContentLoaded", () => {
+        carregarEmpresa();
+        setupDragDrop();
+      });
+    </script>
+  </body>
+</html>

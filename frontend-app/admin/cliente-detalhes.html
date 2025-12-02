@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalhes do Cliente - Firm Capital</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+
+    <style>
+      .cliente-header {
+        background: linear-gradient(
+          135deg,
+          var(--gray-dark) 0%,
+          var(--gray-medium) 100%
+        );
+        color: var(--text-light);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-lg);
+      }
+
+      .cliente-header-content {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .cliente-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: var(--accent-gold);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: var(--gray-dark);
+        flex-shrink: 0;
+      }
+
+      .cliente-info {
+        flex: 1;
+      }
+
+      .cliente-nome {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .cliente-meta {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .cliente-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        opacity: 0.9;
+      }
+
+      .cliente-meta-item i {
+        color: var(--accent-gold);
+      }
+
+      .cliente-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .info-item {
+        padding: 1rem;
+        background: var(--beige-dark);
+        border-radius: 8px;
+        border-left: 3px solid var(--accent-gold);
+      }
+
+      .info-label {
+        font-size: 0.85rem;
+        color: var(--gray-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+      }
+
+      .info-value {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--gray-dark);
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 2rem;
+      }
+
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--beige-darker);
+      }
+
+      .timeline-item {
+        position: relative;
+        padding-bottom: 2rem;
+      }
+
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -2.5rem;
+        top: 0.5rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent-gold);
+        border: 3px solid var(--beige);
+      }
+
+      .timeline-date {
+        font-size: 0.85rem;
+        color: var(--gray-light);
+        margin-bottom: 0.25rem;
+      }
+
+      .timeline-title {
+        font-weight: 600;
+        color: var(--gray-dark);
+        margin-bottom: 0.25rem;
+      }
+
+      .timeline-description {
+        font-size: 0.9rem;
+        color: var(--gray-medium);
+      }
+
+      .empty-simulacoes {
+        text-align: center;
+        padding: 3rem;
+        color: var(--gray-light);
+      }
+
+      .empty-simulacoes i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      @media (max-width: 768px) {
+        .cliente-header-content {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .cliente-nome {
+          font-size: 1.5rem;
+        }
+
+        .cliente-meta {
+          justify-content: center;
+        }
+
+        .cliente-actions {
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="../images/logos/logo_firm.png"
+            alt="Firm Capital"
+            class="sidebar-logo"
+          />
+          <h1 class="sidebar-title">Firm Capital</h1>
+          <p class="sidebar-subtitle">Painel Administrativo</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <a href="dashboard.html" class="nav-item">
+              <i class="fas fa-home"></i>
+              <span class="nav-item-text">Dashboard</span>
+            </a>
+            <a href="usuarios.html" class="nav-item">
+              <i class="fas fa-users"></i>
+              <span class="nav-item-text">Usuários</span>
+            </a>
+            <a href="clientes.html" class="nav-item active">
+              <i class="fas fa-user-tie"></i>
+              <span class="nav-item-text">Clientes</span>
+            </a>
+          </div>
+
+          <!-- TEM QUE BOTAR EM TODOS HTML ISSO -->
+          <div class="nav-section">
+            <div class="nav-section-title">Simulações</div>
+            <a href="simulacoes.html" class="nav-item">
+              <i class="fas fa-list"></i>
+              <span class="nav-item-text">Todas Simulações</span>
+            </a>
+            <a href="../simuladores/index.html" class="nav-item">
+              <i class="fas fa-building"></i>
+              <span class="nav-item-text">Nova Simulação</span>
+            </a>
+            <a href="tipos-fundos.html" class="nav-item">
+              <i class="fas fa-cog"></i>
+              <span class="nav-item-text">Tipos de Fundos</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Configurações</div>
+            <a href="empresa.html" class="nav-item">
+              <i class="fas fa-building-columns"></i>
+              <span class="nav-item-text">Empresa</span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar">FC</div>
+            <div class="user-details">
+              <div class="user-name">Carregando...</div>
+              <div class="user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <div class="sidebar-overlay"></div>
+
+      <main class="main-content">
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="menu-toggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Detalhes do Cliente</h1>
+          </div>
+          <div class="topbar-right">
+            <button class="btn btn-outline" onclick="window.history.back()">
+              <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <!-- Header do Cliente -->
+          <div class="cliente-header" id="clienteHeader">
+            <!-- Será preenchido via JS -->
+          </div>
+
+          <!-- Informações Detalhadas -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-info-circle"></i>
+                Informações Completas
+              </h2>
+            </div>
+            <div class="content-card-body">
+              <div class="info-grid" id="infoGrid">
+                <!-- Será preenchido via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Acesso e Segurança -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-lock"></i>
+                Acesso e Segurança
+              </h2>
+            </div>
+            <div class="content-card-body">
+              <div class="form-group">
+                <label for="novaSenhaAcesso">Definir Nova Senha de Acesso</label>
+                <div style="display: flex; gap: 1rem">
+                  <input
+                    type="password"
+                    id="novaSenhaAcesso"
+                    placeholder="Digite a nova senha para o cliente"
+                    style="flex: 1"
+                  />
+                  <button class="btn" onclick="atualizarSenhaAcesso()">
+                    Atualizar Senha
+                  </button>
+                </div>
+                <p class="help-text" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--gray-light);">
+                  Esta senha permitirá que o cliente acesse o portal.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estatísticas -->
+          <div class="stats-grid" id="statsGrid">
+            <!-- Será preenchido via JS -->
+          </div>
+
+          <!-- Simulações do Cliente -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-chart-line"></i>
+                Simulações
+              </h2>
+              <div class="content-card-actions">
+                <button class="btn" onclick="novaSimulacao()">
+                  <i class="fas fa-plus"></i> Nova Simulação
+                </button>
+              </div>
+            </div>
+            <div class="content-card-body">
+              <div class="table-wrapper">
+                <table class="table" id="simulacoesTable">
+                  <thead>
+                    <tr>
+                      <th>Título</th>
+                      <th>Tipo</th>
+                      <th>Status</th>
+                      <th>Criado por</th>
+                      <th>Data</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline de Atividades -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-history"></i>
+                Histórico de Atividades
+              </h2>
+            </div>
+            <div class="content-card-body">
+              <div class="timeline" id="timeline">
+                <!-- Será preenchido via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal Editar Cliente -->
+    <div id="modalEditarCliente" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Editar Cliente</h2>
+          <button class="modal-close" onclick="closeModalEditar()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="formEditarCliente">
+            <div class="form-group">
+              <label for="nome">Nome Completo *</label>
+              <input type="text" id="nome" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="cpfCnpj">CPF/CNPJ *</label>
+              <input type="text" id="cpfCnpj" required />
+            </div>
+
+            <div class="form-group">
+              <label for="telefone">Telefone</label>
+              <input type="tel" id="telefone" />
+            </div>
+
+            <div class="form-group">
+              <label for="empresa">Empresa</label>
+              <input type="text" id="empresa" />
+            </div>
+
+            <div class="form-group">
+              <label for="cargo">Cargo</label>
+              <input type="text" id="cargo" />
+            </div>
+
+            <div class="form-group">
+              <label for="observacoes">Observações</label>
+              <textarea id="observacoes" rows="3"></textarea>
+            </div>
+
+            <div class="checkbox-group">
+              <input type="checkbox" id="ativo" />
+              <label for="ativo">Cliente ativo</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModalEditar()">
+            Cancelar
+          </button>
+          <button class="btn" onclick="salvarEdicao()">
+            Salvar Alterações
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/empresa-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js"></script>
+
+    <style>
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 1rem;
+      }
+
+      .modal-content {
+        background: var(--beige);
+        border-radius: 12px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-xl);
+      }
+
+      .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--beige-darker);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--gray-dark);
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--gray-medium);
+        cursor: pointer;
+        padding: 0.5rem;
+      }
+
+      .modal-close:hover {
+        color: var(--gray-dark);
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--beige-darker);
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+      }
+    </style>
+
+    <script>
+      auth.requireAuth([ROLES.ADMIN, ROLES.USUARIO]);
+
+      let clienteId = null;
+      let clienteData = null;
+
+      // Obter ID da URL
+      const urlParams = new URLSearchParams(window.location.search);
+      clienteId = urlParams.get("id");
+
+      if (!clienteId) {
+        showToast("Cliente não encontrado", "error");
+        setTimeout(() => (window.location.href = "clientes.html"), 2000);
+      }
+
+      // Carregar dados do cliente
+      async function loadCliente() {
+        try {
+          showLoading("Carregando dados...");
+
+          const response = await api.getCliente(clienteId);
+
+          if (response.success) {
+            clienteData = response.data;
+            renderClienteHeader(clienteData);
+            renderInfoGrid(clienteData);
+            await loadSimulacoes();
+            renderTimeline(clienteData);
+          }
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+          setTimeout(() => (window.location.href = "clientes.html"), 2000);
+        }
+      }
+
+      // Renderizar header do cliente
+      function renderClienteHeader(cliente) {
+        const initials = getInitials(cliente.nome);
+        const statusBadge = cliente.ativo
+          ? '<span class="badge badge-success">Ativo</span>'
+          : '<span class="badge badge-error">Inativo</span>';
+
+        document.getElementById("clienteHeader").innerHTML = `
+        <div class="cliente-header-content">
+          <div class="cliente-avatar">${initials}</div>
+          <div class="cliente-info">
+            <div class="cliente-nome">${cliente.nome}</div>
+            <div>${statusBadge}</div>
+            <div class="cliente-meta">
+              <div class="cliente-meta-item">
+                <i class="fas fa-envelope"></i>
+                <span>${cliente.email}</span>
+              </div>
+              <div class="cliente-meta-item">
+                <i class="fas fa-id-card"></i>
+                <span>${formatCPFCNPJ(cliente.cpfCnpj)}</span>
+              </div>
+              ${
+                cliente.telefone
+                  ? `
+                <div class="cliente-meta-item">
+                  <i class="fas fa-phone"></i>
+                  <span>${formatPhone(cliente.telefone)}</span>
+                </div>
+              `
+                  : ""
+              }
+              <div class="cliente-meta-item">
+                <i class="fas fa-calendar"></i>
+                <span>Desde ${formatDate(cliente.dataCriacao)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="cliente-actions">
+            <button class="btn" onclick="openModalEditar()">
+              <i class="fas fa-edit"></i> Editar
+            </button>
+            <button class="btn btn-outline" onclick="desativarCliente()">
+              <i class="fas fa-ban"></i> ${
+                cliente.ativo ? "Desativar" : "Ativar"
+              }
+            </button>
+          </div>
+        </div>
+      `;
+      }
+
+      // Renderizar grid de informações
+      function renderInfoGrid(cliente) {
+        const items = [
+          {
+            label: "Empresa",
+            value: cliente.empresa || "Não informado",
+          },
+          {
+            label: "Cargo",
+            value: cliente.cargo || "Não informado",
+          },
+          {
+            label: "Responsável",
+            value: cliente.responsavel?.nome || "Não atribuído",
+          },
+          {
+            label: "Email do Responsável",
+            value: cliente.responsavel?.email || "-",
+          },
+        ];
+
+        if (cliente.observacoes) {
+          items.push({
+            label: "Observações",
+            value: cliente.observacoes,
+          });
+        }
+
+        document.getElementById("infoGrid").innerHTML = items
+          .map(
+            (item) => `
+        <div class="info-item">
+          <div class="info-label">${item.label}</div>
+          <div class="info-value">${item.value}</div>
+        </div>
+      `
+          )
+          .join("");
+      }
+
+      // Carregar simulações do cliente
+      async function loadSimulacoes() {
+        try {
+          const response = await api.getSimulacoes({
+            cliente: clienteId,
+            limit: 100,
+          });
+
+          // Renderizar estatísticas
+          const simulacoes = response.data || [];
+          const stats = [
+            {
+              icon: "fas fa-chart-line",
+              title: "Total de Simulações",
+              value: simulacoes.length,
+              description: "Criadas para este cliente",
+            },
+            {
+              icon: "fas fa-check-circle",
+              title: "Concluídas",
+              value: simulacoes.filter((s) => s.status === "concluida").length,
+              description: "Simulações finalizadas",
+            },
+            {
+              icon: "fas fa-edit",
+              title: "Rascunhos",
+              value: simulacoes.filter((s) => s.status === "rascunho").length,
+              description: "Em andamento",
+            },
+            {
+              icon: "fas fa-archive",
+              title: "Arquivadas",
+              value: simulacoes.filter((s) => s.status === "arquivada").length,
+              description: "Simulações arquivadas",
+            },
+          ];
+
+          dashboardInstance.renderStatsCards(stats);
+
+          // Renderizar tabela
+          if (simulacoes.length === 0) {
+            document.querySelector("#simulacoesTable tbody").innerHTML = `
+            <tr>
+              <td colspan="6">
+                <div class="empty-simulacoes">
+                  <i class="fas fa-inbox"></i>
+                  <div><strong>Nenhuma simulação encontrada</strong></div>
+                  <div>Crie a primeira simulação para este cliente</div>
+                </div>
+              </td>
+            </tr>
+          `;
+            return;
+          }
+
+          const columns = [
+            { field: "titulo" },
+            { field: "tipoFundo", render: (v) => v?.nome || "-" },
+            {
+              field: "status",
+              render: (v) => {
+                const badges = {
+                  rascunho: "badge-warning",
+                  concluida: "badge-success",
+                  arquivada: "badge-info",
+                };
+                const labels = {
+                  rascunho: "Rascunho",
+                  concluida: "Concluída",
+                  arquivada: "Arquivada",
+                };
+                return `<span class="badge ${badges[v]}">${labels[v]}</span>`;
+              },
+            },
+            { field: "criadoPor", render: (v) => v?.nome || "-" },
+            { field: "dataCriacao", render: (v) => formatDate(v, "datetime") },
+          ];
+
+          const actions = [
+            {
+              icon: "fas fa-eye",
+              title: "Visualizar",
+              onClick: "visualizarSimulacao",
+            },
+            {
+              icon: "fas fa-edit",
+              title: "Editar",
+              onClick: "editarSimulacao",
+            },
+            {
+              icon: "fas fa-trash",
+              title: "Excluir",
+              onClick: "excluirSimulacao",
+            },
+          ];
+
+          dashboardInstance.renderTable(
+            "simulacoesTable",
+            simulacoes,
+            columns,
+            actions
+          );
+        } catch (error) {
+          console.error("Erro ao carregar simulações:", error);
+        }
+      }
+
+      // Renderizar timeline
+      function renderTimeline(cliente) {
+        const timeline = [];
+
+        // Cliente criado
+        timeline.push({
+          date: cliente.dataCriacao,
+          title: "Cliente Cadastrado",
+          description: `Cadastrado por ${cliente.criadoPor?.nome || "Sistema"}`,
+        });
+
+        // Última atualização
+        if (
+          cliente.dataAtualizacao &&
+          cliente.dataAtualizacao !== cliente.dataCriacao
+        ) {
+          timeline.push({
+            date: cliente.dataAtualizacao,
+            title: "Dados Atualizados",
+            description: "Informações do cliente foram atualizadas",
+          });
+        }
+
+        // Ordenar por data (mais recente primeiro)
+        timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        document.getElementById("timeline").innerHTML = timeline
+          .map(
+            (item) => `
+        <div class="timeline-item">
+          <div class="timeline-date">${formatDate(item.date, "datetime")}</div>
+          <div class="timeline-title">${item.title}</div>
+          <div class="timeline-description">${item.description}</div>
+        </div>
+      `
+          )
+          .join("");
+      }
+
+      // Funções de ações
+      function novaSimulacao() {
+        window.location.href = `../simuladores/index.html?cliente=${clienteId}`;
+      }
+
+      function visualizarSimulacao(id) {
+        window.location.href = `../simuladores/visualizar.html?id=${id}`;
+      }
+
+      function editarSimulacao(id) {
+        window.location.href = `../simuladores/editar.html?id=${id}`;
+      }
+
+      async function excluirSimulacao(id) {
+        const confirmed = await confirmAction({
+          title: "Excluir Simulação",
+          message:
+            "Tem certeza que deseja excluir esta simulação? Esta ação não pode ser desfeita.",
+          confirmText: "Excluir",
+          cancelText: "Cancelar",
+          type: "danger",
+          isDanger: true,
+        });
+
+        if (!confirmed) return;
+
+        try {
+          showLoading();
+          await api.deleteSimulacao(id);
+          showToast("Simulação excluída com sucesso!", "success");
+          loadSimulacoes();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      async function atualizarSenhaAcesso() {
+        const novaSenha = document.getElementById("novaSenhaAcesso").value;
+        
+        if (!novaSenha) {
+          showToast("Por favor, digite uma nova senha", "warning");
+          return;
+        }
+
+        if (novaSenha.length < 6) {
+          showToast("A senha deve ter pelo menos 6 caracteres", "warning");
+          return;
+        }
+
+        const confirmed = await confirmAction({
+          title: "Atualizar Senha",
+          message: "Tem certeza que deseja alterar a senha de acesso deste cliente?",
+          confirmText: "Atualizar",
+          cancelText: "Cancelar",
+          type: "warning"
+        });
+
+        if (!confirmed) return;
+
+        try {
+          showLoading("Atualizando senha...");
+          await api.updateClienteAcesso(clienteId, { senha: novaSenha });
+          hideLoading();
+          showToast("Senha atualizada com sucesso!", "success");
+          document.getElementById("novaSenhaAcesso").value = "";
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+
+      // Modal de edição
+      function openModalEditar() {
+        document.getElementById("nome").value = clienteData.nome;
+        document.getElementById("email").value = clienteData.email;
+        document.getElementById("cpfCnpj").value = formatCPFCNPJ(
+          clienteData.cpfCnpj
+        );
+        document.getElementById("telefone").value = clienteData.telefone
+          ? formatPhone(clienteData.telefone)
+          : "";
+        document.getElementById("empresa").value = clienteData.empresa || "";
+        document.getElementById("cargo").value = clienteData.cargo || "";
+        document.getElementById("observacoes").value =
+          clienteData.observacoes || "";
+        document.getElementById("ativo").checked = clienteData.ativo;
+
+        document.getElementById("modalEditarCliente").style.display = "flex";
+      }
+
+      function closeModalEditar() {
+        document.getElementById("modalEditarCliente").style.display = "none";
+      }
+
+      async function salvarEdicao() {
+        const form = document.getElementById("formEditarCliente");
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        const data = {
+          nome: document.getElementById("nome").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          cpfCnpj: document.getElementById("cpfCnpj").value.replace(/\D/g, ""),
+          telefone:
+            document.getElementById("telefone").value.trim() || undefined,
+          empresa: document.getElementById("empresa").value.trim() || undefined,
+          cargo: document.getElementById("cargo").value.trim() || undefined,
+          observacoes:
+            document.getElementById("observacoes").value.trim() || undefined,
+          ativo: document.getElementById("ativo").checked,
+        };
+
+        try {
+          showLoading();
+          await api.updateCliente(clienteId, data);
+          showToast("Cliente atualizado com sucesso!", "success");
+          closeModalEditar();
+          loadCliente();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      async function desativarCliente() {
+        const action = clienteData.ativo ? "desativar" : "ativar";
+
+        const confirmed = await confirmAction({
+          title: `${action.charAt(0).toUpperCase() + action.slice(1)} Cliente`,
+          message: `Tem certeza que deseja ${action} este cliente?`,
+          confirmText: action.charAt(0).toUpperCase() + action.slice(1),
+          cancelText: "Cancelar",
+          type: "warning",
+          isDanger: clienteData.ativo,
+        });
+
+        if (!confirmed) return;
+
+        try {
+          showLoading();
+
+          if (clienteData.ativo) {
+            await api.deleteCliente(clienteId);
+          } else {
+            await api.updateCliente(clienteId, { ativo: true });
+          }
+
+          showToast(
+            `Cliente ${
+              action === "ativar" ? "ativado" : "desativado"
+            } com sucesso!`,
+            "success"
+          );
+          loadCliente();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      // Máscaras
+      document
+        .getElementById("telefone")
+        .addEventListener("input", function (e) {
+          let value = e.target.value.replace(/\D/g, "");
+          if (value.length <= 11) {
+            if (value.length <= 10) {
+              value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
+            } else {
+              value = value.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
+            }
+            e.target.value = value;
+          }
+        });
+
+      document
+        .getElementById("cpfCnpj")
+        .addEventListener("input", function (e) {
+          let value = e.target.value.replace(/\D/g, "");
+
+          if (value.length <= 11) {
+            value = value.replace(
+              /(\d{3})(\d{3})(\d{3})(\d{0,2})/,
+              "$1.$2.$3-$4"
+            );
+          } else {
+            value = value.slice(0, 14);
+            value = value.replace(
+              /(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/,
+              "$1.$2.$3/$4-$5"
+            );
+          }
+
+          e.target.value = value;
+        });
+
+      // Helper: obter iniciais
+      function getInitials(name) {
+        if (!name) return "?";
+        const parts = name.trim().split(" ");
+        if (parts.length === 1) {
+          return parts[0].charAt(0).toUpperCase();
+        }
+        return (
+          parts[0].charAt(0) + parts[parts.length - 1].charAt(0)
+        ).toUpperCase();
+      }
+
+      // Helper: formatar CPF/CNPJ
+      function formatCPFCNPJ(value) {
+        if (!value) return "-";
+        const numbers = value.replace(/\D/g, "");
+
+        if (numbers.length === 11) {
+          return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+        } else if (numbers.length === 14) {
+          return numbers.replace(
+            /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+            "$1.$2.$3/$4-$5"
+          );
+        }
+
+        return value;
+      }
+
+      // Iniciar
+      loadCliente();
+    </script>
+  </body>
+</html>

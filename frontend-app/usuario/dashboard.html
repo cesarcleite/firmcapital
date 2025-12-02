@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Firm Capital</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="../images/logos/logo_firm.png"
+            alt="Firm Capital"
+            class="sidebar-logo"
+          />
+          <h1 class="sidebar-title">Firm Capital</h1>
+          <p class="sidebar-subtitle">Meu Painel</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <a href="dashboard.html" class="nav-item active">
+              <i class="fas fa-home"></i>
+              <span class="nav-item-text">Dashboard</span>
+            </a>
+            <a href="clientes.html" class="nav-item">
+              <i class="fas fa-user-tie"></i>
+              <span class="nav-item-text">Clientes</span>
+            </a>
+            <a href="simulacoes.html" class="nav-item">
+              <i class="fas fa-chart-line"></i>
+              <span class="nav-item-text">Simulações</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Criar Simulação</div>
+            <a href="../simuladores/index.html" class="nav-item">
+              <i class="fas fa-building"></i>
+              <span class="nav-item-text">Nova Simulação</span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar">FC</div>
+            <div class="user-details">
+              <div class="user-name">Carregando...</div>
+              <div class="user-role">Usuário</div>
+            </div>
+          </div>
+          <button class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <!-- Sidebar Overlay (mobile) -->
+      <div class="sidebar-overlay"></div>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="menu-toggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Meu Dashboard</h1>
+          </div>
+          <div class="topbar-right">
+            <button
+              class="topbar-btn"
+              onclick="window.location.href='../simuladores/FII.html'"
+            >
+              <i class="fas fa-plus"></i>
+              <span>Nova Simulação</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <!-- Stats Cards -->
+          <div class="stats-grid" id="statsGrid"></div>
+
+          <!-- Minhas Simulações Recentes -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-chart-line"></i>
+                Minhas Simulações Recentes
+              </h2>
+              <div class="content-card-actions">
+                <a href="simulacoes.html" class="btn btn-outline">
+                  Ver Todas
+                </a>
+              </div>
+            </div>
+            <div class="content-card-body">
+              <div class="table-wrapper">
+                <table class="table" id="simulacoesTable">
+                  <thead>
+                    <tr>
+                      <th>Título</th>
+                      <th>Cliente</th>
+                      <th>Tipo</th>
+                      <th>Status</th>
+                      <th>Data</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Meus Clientes -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-user-tie"></i>
+                Clientes
+              </h2>
+              <div class="content-card-actions">
+                <a href="clientes.html" class="btn btn-outline">
+                  Ver Todos
+                </a>
+              </div>
+            </div>
+            <div class="content-card-body">
+              <div class="table-wrapper">
+                <table class="table" id="clientesTable">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Email</th>
+                      <th>Telefone</th>
+                      <th>Simulações</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/empresa-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js"></script>
+
+    <script>
+      // Proteger página - apenas usuário
+      auth.requireAuth([ROLES.USUARIO]);
+
+      // Carregar dados do dashboard
+      async function loadDashboard() {
+        try {
+          showLoading("Carregando dados...");
+
+          // Buscar minhas simulações
+          const simulacoesResponse = await api.getSimulacoes({ limit: 5 });
+          const clientesResponse = await api.getClientes({ limit: 5 });
+
+          // Renderizar estatísticas
+          const stats = [
+            {
+              icon: "fas fa-user-tie",
+              title: "Meus Clientes",
+              value: clientesResponse.pagination?.total || 0,
+              description: "Clientes cadastrados",
+            },
+            {
+              icon: "fas fa-chart-line",
+              title: "Simulações",
+              value: simulacoesResponse.pagination?.total || 0,
+              description: "Total criadas",
+            },
+            {
+              icon: "fas fa-check-circle",
+              title: "Concluídas",
+              value:
+                simulacoesResponse.data?.filter((s) => s.status === "concluida")
+                  .length || 0,
+              description: "Simulações finalizadas",
+            },
+            {
+              icon: "fas fa-edit",
+              title: "Rascunhos",
+              value:
+                simulacoesResponse.data?.filter((s) => s.status === "rascunho")
+                  .length || 0,
+              description: "Em andamento",
+            },
+          ];
+
+          dashboardInstance.renderStatsCards(stats);
+
+          // Renderizar simulações
+          renderSimulacoes(simulacoesResponse.data || []);
+
+          // Renderizar clientes
+          renderClientes(clientesResponse.data || []);
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      function renderSimulacoes(simulacoes) {
+        const columns = [
+          { field: "titulo" },
+          { field: "cliente", render: (v) => v?.nome || "-" },
+          { field: "tipoFundo", render: (v) => v?.nome || "-" },
+          {
+            field: "status",
+            render: (v) => {
+              const badges = {
+                rascunho: "badge-warning",
+                concluida: "badge-success",
+                arquivada: "badge-info",
+              };
+              return `<span class="badge ${badges[v]}">${v}</span>`;
+            },
+          },
+          { field: "dataCriacao", render: (v) => formatDate(v) },
+        ];
+
+        const actions = [
+          { icon: "fas fa-eye", title: "Ver", onClick: "verSimulacao" },
+          { icon: "fas fa-edit", title: "Editar", onClick: "editarSimulacao" },
+        ];
+
+        dashboardInstance.renderTable(
+          "simulacoesTable",
+          simulacoes,
+          columns,
+          actions
+        );
+      }
+
+      function renderClientes(clientes) {
+        const columns = [
+          { field: "nome" },
+          { field: "email" },
+          { field: "telefone", render: (v) => formatPhone(v) || "-" },
+          { field: "simulacoes", render: () => "-" },
+        ];
+
+        const actions = [
+          { icon: "fas fa-eye", title: "Ver", onClick: "verCliente" },
+          {
+            icon: "fas fa-plus",
+            title: "Nova Simulação",
+            onClick: "novaSimulacaoCliente",
+          },
+        ];
+
+        dashboardInstance.renderTable(
+          "clientesTable",
+          clientes,
+          columns,
+          actions
+        );
+      }
+
+      function verSimulacao(id) {
+        window.location.href = `simulacoes.html?id=${id}`;
+      }
+
+      function editarSimulacao(id) {
+        window.location.href = `../simuladores/editar.html?id=${id}`;
+      }
+
+      function verCliente(id) {
+        window.location.href = `cliente-detalhes.html?id=${id}`;
+      }
+
+      function novaSimulacaoCliente(id) {
+        window.location.href = `../simuladores/FII.html?cliente=${id}`;
+      }
+
+      loadDashboard();
+    </script>
+  </body>
+</html>

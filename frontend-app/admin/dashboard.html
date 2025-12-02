@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Firm Capital</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="../images/logos/logo_firm.png"
+            alt="Firm Capital"
+            class="sidebar-logo"
+          />
+          <h1 class="sidebar-title">Firm Capital</h1>
+          <p class="sidebar-subtitle">Painel Administrativo</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <a href="dashboard.html" class="nav-item active">
+              <i class="fas fa-home"></i>
+              <span class="nav-item-text">Dashboard</span>
+            </a>
+            <a href="usuarios.html" class="nav-item">
+              <i class="fas fa-users"></i>
+              <span class="nav-item-text">Usuários</span>
+            </a>
+            <a href="clientes.html" class="nav-item">
+              <i class="fas fa-user-tie"></i>
+              <span class="nav-item-text">Clientes</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Simulações</div>
+            <a href="simulacoes.html" class="nav-item">
+              <i class="fas fa-list"></i>
+              <span class="nav-item-text">Todas Simulações</span>
+            </a>
+            <a href="../simuladores/index.html" class="nav-item">
+              <i class="fas fa-building"></i>
+              <span class="nav-item-text">Nova Simulação</span>
+            </a>
+            <a href="tipos-fundos.html" class="nav-item">
+              <i class="fas fa-cog"></i>
+              <span class="nav-item-text">Tipos de Fundos</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Configurações</div>
+            <a href="taxas-regulatorias.html" class="nav-item">
+              <i class="fas fa-landmark"></i>
+              <span class="nav-item-text">Taxas Regulatórias</span>
+            </a>
+            <a href="empresa.html" class="nav-item">
+              <i class="fas fa-building-columns"></i>
+              <span class="nav-item-text">Empresa</span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar">FC</div>
+            <div class="user-details">
+              <div class="user-name">Carregando...</div>
+              <div class="user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <!-- Sidebar Overlay (mobile) -->
+      <div class="sidebar-overlay"></div>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="menu-toggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Dashboard</h1>
+          </div>
+          <div class="topbar-right">
+            <button class="topbar-btn">
+              <i class="fas fa-bell"></i>
+              <span>Notificações</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <!-- Stats Cards -->
+          <div class="stats-grid" id="statsGrid">
+            <!-- Será preenchido via JS -->
+          </div>
+
+          <!-- Content Card Example -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-chart-line"></i>
+                Últimas Simulações
+              </h2>
+              <div class="content-card-actions">
+                <button class="btn btn-outline" onclick="novaSimulacao()">
+                  <i class="fas fa-plus"></i> Nova Simulação
+                </button>
+              </div>
+            </div>
+            <div class="content-card-body">
+              <div class="table-wrapper">
+                <table class="table" id="simulacoesTable">
+                  <thead>
+                    <tr>
+                      <th>Título</th>
+                      <th>Cliente</th>
+                      <th>Tipo</th>
+                      <th>Status</th>
+                      <th>Data</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Será preenchido via JS -->
+                  </tbody>
+                </table>
+              </div>
+              <div class="pagination" id="pagination"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/empresa-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js"></script>
+
+    <script>
+      // Proteger página - apenas admin
+      auth.requireAuth([ROLES.ADMIN]);
+
+      // Mapeamento de códigos de tipo de fundo para arquivos HTML
+      const TIPO_FUNDO_PAGES = {
+        FII: "fii.html",
+        "FIP-IE": "fip-ie.html",
+        FIP: "fip.html",
+        FIDC: "fidc.html",
+      };
+
+      // Carregar dados do dashboard
+      async function loadDashboard() {
+        try {
+          showLoading("Carregando dashboard...");
+
+          // Buscar dados do dashboard
+          const response = await api.getAdminDashboard();
+
+          if (response.success) {
+            const data = response.data;
+
+            // Renderizar estatísticas
+            const stats = [
+              {
+                icon: "fas fa-users",
+                title: "Total de Usuários",
+                value: data.estatisticas.totalUsuarios,
+                description: "Usuários ativos",
+                trend: null,
+              },
+              {
+                icon: "fas fa-user-tie",
+                title: "Total de Clientes",
+                value: data.estatisticas.totalClientes,
+                description: "Clientes cadastrados",
+                trend: null,
+              },
+              {
+                icon: "fas fa-chart-line",
+                title: "Simulações",
+                value: data.estatisticas.totalSimulacoes,
+                description: "Simulações criadas",
+                trend: null,
+              },
+              {
+                icon: "fas fa-folder",
+                title: "Tipos de Fundos",
+                value: data.estatisticas.totalTiposFundos,
+                description: "Fundos disponíveis",
+                trend: null,
+              },
+            ];
+
+            dashboardInstance.renderStatsCards(stats);
+
+            // Renderizar últimas simulações
+            renderUltimasSimulacoes(data.ultimasSimulacoes);
+          }
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      // Renderizar últimas simulações
+      function renderUltimasSimulacoes(simulacoes) {
+        const columns = [
+          {
+            field: "titulo",
+            render: (value) => value,
+          },
+          {
+            field: "cliente",
+            render: (value) => value?.nome || "-",
+          },
+          {
+            field: "tipoFundo",
+            render: (value) => value?.nome || "-",
+          },
+          {
+            field: "status",
+            render: (value) => {
+              const badges = {
+                rascunho: "badge-warning",
+                concluida: "badge-success",
+                arquivada: "badge-info",
+              };
+              const labels = {
+                rascunho: "Rascunho",
+                concluida: "Concluída",
+                arquivada: "Arquivada",
+              };
+              return `<span class="badge ${badges[value]}">${labels[value]}</span>`;
+            },
+          },
+          {
+            field: "dataCriacao",
+            render: (value) => formatDate(value),
+          },
+        ];
+
+        const actions = [
+          {
+            icon: "fas fa-edit",
+            title: "Visualizar/Editar",
+            onClick: "abrirSimulacao",
+          },
+          {
+            icon: "fas fa-trash",
+            title: "Excluir",
+            onClick: "excluirSimulacao",
+          },
+        ];
+
+        dashboardInstance.renderTable(
+          "simulacoesTable",
+          simulacoes,
+          columns,
+          actions
+        );
+      }
+
+      // FUNÇÃO PRINCIPAL: Abre a simulação na página correta do tipo de fundo
+      async function abrirSimulacao(id) {
+        try {
+          showLoading();
+          const response = await api.getSimulacao(id);
+          hideLoading();
+
+          if (response.success) {
+            const tipoFundo = response.data.tipoFundo;
+            const codigo = tipoFundo?.codigo;
+
+            // Buscar o arquivo HTML correspondente ao tipo de fundo
+            const paginaHTML = TIPO_FUNDO_PAGES[codigo];
+
+            if (paginaHTML) {
+              // Redirecionar para a página específica do tipo de fundo
+              window.location.href = `../simuladores/${paginaHTML}?id=${id}`;
+            } else {
+              showToast(
+                `Tipo de fundo "${
+                  tipoFundo?.nome || codigo
+                }" ainda não tem página implementada`,
+                "warning"
+              );
+            }
+          }
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      async function excluirSimulacao(id) {
+        // Usando confirmAction ao invés de alert
+        const confirmed = await confirmAction({
+          title: "Excluir Simulação",
+          message:
+            "Tem certeza que deseja excluir esta simulação? Esta ação não pode ser desfeita.",
+          confirmText: "Excluir",
+          cancelText: "Cancelar",
+          type: "danger",
+          isDanger: true,
+        });
+
+        if (!confirmed) return;
+
+        try {
+          showLoading("Excluindo simulação...");
+          await api.deleteSimulacao(id);
+          showToast("Simulação excluída com sucesso!", "success");
+          loadDashboard();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      // Função para criar nova simulação
+      function novaSimulacao() {
+        window.location.href = "../simuladores/index.html";
+      }
+
+      // Carregar dashboard ao iniciar
+      loadDashboard();
+    </script>
+  </body>
+</html>

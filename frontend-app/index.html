@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firm Capital - Sistema de Simulação de Fundos</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+  </head>
+  <body>
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <img src="images/logos/logo_firm.png" alt="Firm Capital" class="auth-logo" />
+          <!--  <img
+            src="images/logos/logo_firm.png"
+            alt="Firm Capital"
+            class="auth-logo"
+          /> -->
+          <h1>Sistema de Simulação de Fundos</h1>
+          <p>Análise e comparação de investimentos</p>
+        </div>
+
+        <div class="auth-body">
+          <div style="text-align: center">
+            <p style="margin-bottom: 2rem; color: var(--gray-medium)">
+              Bem-vindo ao sistema de simulação e comparação de fundos de
+              investimento da Firm Capital.
+            </p>
+
+            <a
+              href="shared/login.html"
+              class="btn"
+              style="width: 100%; margin-bottom: 1rem"
+            >
+              <i class="fas fa-sign-in-alt"></i> Fazer Login
+            </a>
+
+            <a
+              href="shared/cadastro.html"
+              class="btn btn-outline"
+              style="width: 100%"
+            >
+              <i class="fas fa-user-plus"></i> Criar Conta
+            </a>
+          </div>
+        </div>
+
+        <div class="auth-footer">
+          <p style="font-size: 0.85rem; color: var(--gray-light)">
+            © 2025 Firm Capital. Todos os direitos reservados.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="../js/empresa-config.js"></script>
+    <script src="js/auth.js"></script>
+
+    <script>
+      // Se já estiver logado, redirecionar
+      if (auth.isAuthenticated()) {
+        auth.redirectToDashboard();
+      }
+    </script>
+  </body>
+</html>

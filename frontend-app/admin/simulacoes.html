@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulações - Firm Capital</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="../images/logos/logo_firm.png"
+            alt="Firm Capital"
+            class="sidebar-logo"
+          />
+          <h1 class="sidebar-title">Firm Capital</h1>
+          <p class="sidebar-subtitle">Painel Administrativo</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <a href="dashboard.html" class="nav-item">
+              <i class="fas fa-home"></i>
+              <span class="nav-item-text">Dashboard</span>
+            </a>
+            <a href="usuarios.html" class="nav-item">
+              <i class="fas fa-users"></i>
+              <span class="nav-item-text">Usuários</span>
+            </a>
+            <a href="clientes.html" class="nav-item">
+              <i class="fas fa-user-tie"></i>
+              <span class="nav-item-text">Clientes</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Simulações</div>
+            <a href="simulacoes.html" class="nav-item active">
+              <i class="fas fa-list"></i>
+              <span class="nav-item-text">Todas Simulações</span>
+            </a>
+            <a href="../simuladores/index.html" class="nav-item">
+              <i class="fas fa-building"></i>
+              <span class="nav-item-text">Nova Simulação</span>
+            </a>
+            <a href="tipos-fundos.html" class="nav-item">
+              <i class="fas fa-cog"></i>
+              <span class="nav-item-text">Tipos de Fundos</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Configurações</div>
+            <a href="empresa.html" class="nav-item">
+              <i class="fas fa-building-columns"></i>
+              <span class="nav-item-text">Empresa</span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar">FC</div>
+            <div class="user-details">
+              <div class="user-name">Carregando...</div>
+              <div class="user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <div class="sidebar-overlay"></div>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="menu-toggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Simulações</h1>
+          </div>
+          <div class="topbar-right">
+            <button class="btn" onclick="novaSimulacao()">
+              <i class="fas fa-plus"></i> Nova Simulação
+            </button>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <!-- Cards de Estatísticas -->
+          <div class="stats-grid" id="statsGrid">
+            <!-- Será preenchido via JS -->
+          </div>
+
+          <!-- Filtros Avançados -->
+          <div class="content-card">
+            <div class="content-card-body">
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                  gap: 0.75rem;
+                "
+              >
+                <div class="form-group" style="margin-bottom: 0">
+                  <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Buscar por título ou descrição..."
+                    style="margin-bottom: 0"
+                  />
+                </div>
+                <div class="form-group" style="margin-bottom: 0">
+                  <select id="clienteFilter" style="margin-bottom: 0">
+                    <option value="">Todos os Clientes</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0">
+                  <select id="tipoFilter" style="margin-bottom: 0">
+                    <option value="">Todos os Tipos</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0">
+                  <select id="statusFilter" style="margin-bottom: 0">
+                    <option value="">Todos os Status</option>
+                    <option value="rascunho">Rascunho</option>
+                    <option value="concluida">Concluída</option>
+                    <option value="arquivada">Arquivada</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0">
+                  <input
+                    type="date"
+                    id="dataInicio"
+                    placeholder="Data Início"
+                    style="margin-bottom: 0"
+                  />
+                </div>
+                <div class="form-group" style="margin-bottom: 0">
+                  <input
+                    type="date"
+                    id="dataFim"
+                    placeholder="Data Fim"
+                    style="margin-bottom: 0"
+                  />
+                </div>
+                <div class="form-group" style="margin-bottom: 0">
+                  <button
+                    class="btn btn-outline"
+                    onclick="limparFiltros()"
+                    style="width: 100%; margin-bottom: 0"
+                  >
+                    <i class="fas fa-eraser"></i> Limpar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela de Simulações -->
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-chart-line"></i>
+                Lista de Simulações
+              </h2>
+              <div class="content-card-actions">
+                <button class="btn btn-outline" onclick="exportarCSV()">
+                  <i class="fas fa-download"></i> Exportar
+                </button>
+              </div>
+            </div>
+            <div class="content-card-body">
+              <div class="table-wrapper">
+                <table class="table" id="simulacoesTable">
+                  <thead>
+                    <tr>
+                      <th>Título</th>
+                      <th>Cliente</th>
+                      <th>Tipo</th>
+                      <th>Status</th>
+                      <th>Criado por</th>
+                      <th>Data Criação</th>
+                      <th>Última Atualização</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="pagination" id="pagination"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal Compartilhar -->
+    <div id="modalCompartilhar" class="modal" style="display: none">
+      <div class="modal-content" style="max-width: 500px">
+        <div class="modal-header">
+          <h2>Compartilhar Simulação</h2>
+          <button class="modal-close" onclick="closeModalCompartilhar()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p style="margin-bottom: 1rem; color: var(--gray-dark)">
+            Link público para compartilhamento:
+          </p>
+          <div style="display: flex; gap: 0.5rem">
+            <input
+              type="text"
+              id="linkCompartilhamento"
+              readonly
+              style="flex: 1"
+            />
+            <button class="btn" onclick="copiarLink()">
+              <i class="fas fa-copy"></i> Copiar
+            </button>
+          </div>
+          <p
+            style="
+              margin-top: 1rem;
+              font-size: 0.85rem;
+              color: var(--gray-light);
+            "
+          >
+            Qualquer pessoa com este link poderá visualizar a simulação sem
+            fazer login.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModalCompartilhar()">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/empresa-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js"></script>
+
+    <style>
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 1rem;
+      }
+
+      .modal-content {
+        background: var(--beige);
+        border-radius: 12px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-xl);
+      }
+
+      .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--beige-darker);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--gray-dark);
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--gray-medium);
+        cursor: pointer;
+        padding: 0.5rem;
+      }
+
+      .modal-close:hover {
+        color: var(--gray-dark);
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--beige-darker);
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+      }
+    </style>
+
+    <script>
+      auth.requireAuth([ROLES.ADMIN, ROLES.USUARIO]);
+
+      let currentPage = 1;
+      let filters = {
+        search: "",
+        cliente: "",
+        tipo: "",
+        status: "",
+        dataInicio: "",
+        dataFim: "",
+      };
+
+      // Mapeamento de códigos de tipo de fundo para arquivos HTML
+      const TIPO_FUNDO_PAGES = {
+        FII: "fii.html",
+        "FIP-IE": "fip-ie.html",
+        FIP: "fip.html",
+        FIDC: "fidc.html",
+      };
+
+      // Carregar filtros iniciais
+      async function carregarFiltros() {
+        try {
+          // Carregar clientes
+          const clientes = await api.getClientes({ ativo: true, limit: 1000 });
+          const selectCliente = document.getElementById("clienteFilter");
+
+          if (clientes.success && clientes.data) {
+            clientes.data.forEach((cliente) => {
+              const option = document.createElement("option");
+              option.value = cliente._id;
+              option.textContent = cliente.nome;
+              selectCliente.appendChild(option);
+            });
+          }
+
+          // Carregar tipos de fundos
+          const tipos = await api.getTiposFundos({ ativo: true });
+          const selectTipo = document.getElementById("tipoFilter");
+
+          if (tipos.success && tipos.data) {
+            tipos.data.forEach((tipo) => {
+              const option = document.createElement("option");
+              option.value = tipo._id;
+              option.textContent = tipo.nome;
+              selectTipo.appendChild(option);
+            });
+          }
+        } catch (error) {
+          console.error("Erro ao carregar filtros:", error);
+        }
+      }
+
+      // Carregar simulações
+      async function loadSimulacoes() {
+        try {
+          showLoading();
+
+          const params = {
+            page: currentPage,
+            limit: 20,
+          };
+
+          // Adicionar filtros
+          if (filters.search) params.search = filters.search;
+          if (filters.cliente) params.cliente = filters.cliente;
+          if (filters.tipo) params.tipoFundo = filters.tipo;
+          if (filters.status) params.status = filters.status;
+          if (filters.dataInicio) params.dataInicio = filters.dataInicio;
+          if (filters.dataFim) params.dataFim = filters.dataFim;
+
+          const response = await api.getSimulacoes(params);
+
+          // Atualizar estatísticas
+          if (response.success) {
+            const stats = [
+              {
+                icon: "fas fa-chart-line",
+                title: "Total de Simulações",
+                value: response.pagination?.total || response.data?.length || 0,
+                description: "Simulações cadastradas",
+              },
+              {
+                icon: "fas fa-check-circle",
+                title: "Concluídas",
+                value:
+                  response.data?.filter((s) => s.status === "concluida")
+                    .length || 0,
+                description: "Simulações finalizadas",
+              },
+              {
+                icon: "fas fa-edit",
+                title: "Rascunhos",
+                value:
+                  response.data?.filter((s) => s.status === "rascunho")
+                    .length || 0,
+                description: "Em andamento",
+              },
+              {
+                icon: "fas fa-archive",
+                title: "Arquivadas",
+                value:
+                  response.data?.filter((s) => s.status === "arquivada")
+                    .length || 0,
+                description: "Simulações arquivadas",
+              },
+            ];
+
+            dashboardInstance.renderStatsCards(stats);
+          }
+
+          // Renderizar tabela
+          const columns = [
+            {
+              field: "titulo",
+              render: (value, row) => {
+                const maxLength = 40;
+                const truncated =
+                  value.length > maxLength
+                    ? value.substring(0, maxLength) + "..."
+                    : value;
+                return `<strong title="${value}">${truncated}</strong>`;
+              },
+            },
+            {
+              field: "cliente",
+              render: (value) => value?.nome || "-",
+            },
+            {
+              field: "tipoFundo",
+              render: (value) => value?.nome || "-",
+            },
+            {
+              field: "status",
+              render: (value) => {
+                const badges = {
+                  rascunho: "badge-warning",
+                  concluida: "badge-success",
+                  arquivada: "badge-info",
+                };
+                const labels = {
+                  rascunho: "Rascunho",
+                  concluida: "Concluída",
+                  arquivada: "Arquivada",
+                };
+                return `<span class="badge ${badges[value]}">${labels[value]}</span>`;
+              },
+            },
+            {
+              field: "criadoPor",
+              render: (value) => value?.nome || "-",
+            },
+            {
+              field: "dataCriacao",
+              render: (value) => formatDate(value, "short"),
+            },
+            {
+              field: "dataAtualizacao",
+              render: (value) => formatDate(value, "short"),
+            },
+          ];
+
+          const actions = [
+            {
+              icon: "fas fa-edit",
+              title: "Visualizar/Editar",
+              onClick: "abrirSimulacao",
+            },
+            {
+              icon: "fas fa-copy",
+              title: "Duplicar",
+              onClick: "duplicarSimulacao",
+            },
+            {
+              icon: "fas fa-share-alt",
+              title: "Compartilhar",
+              onClick: "compartilharSimulacao",
+            },
+            {
+              icon: "fas fa-trash",
+              title: "Excluir",
+              onClick: "excluirSimulacao",
+            },
+          ];
+
+          dashboardInstance.renderTable(
+            "simulacoesTable",
+            response.data || [],
+            columns,
+            actions
+          );
+
+          // Paginação
+          if (response.pagination?.pages > 1) {
+            dashboardInstance.renderPagination(
+              "pagination",
+              currentPage,
+              response.pagination.pages,
+              "changePage"
+            );
+          } else {
+            document.getElementById("pagination").innerHTML = "";
+          }
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      // Event listeners para filtros
+      const searchDebounced = debounce((value) => {
+        filters.search = value;
+        currentPage = 1;
+        loadSimulacoes();
+      }, 500);
+
+      document.getElementById("searchInput").addEventListener("input", (e) => {
+        searchDebounced(e.target.value);
+      });
+
+      document
+        .getElementById("clienteFilter")
+        .addEventListener("change", (e) => {
+          filters.cliente = e.target.value;
+          currentPage = 1;
+          loadSimulacoes();
+        });
+
+      document.getElementById("tipoFilter").addEventListener("change", (e) => {
+        filters.tipo = e.target.value;
+        currentPage = 1;
+        loadSimulacoes();
+      });
+
+      document
+        .getElementById("statusFilter")
+        .addEventListener("change", (e) => {
+          filters.status = e.target.value;
+          currentPage = 1;
+          loadSimulacoes();
+        });
+
+      document.getElementById("dataInicio").addEventListener("change", (e) => {
+        filters.dataInicio = e.target.value;
+        currentPage = 1;
+        loadSimulacoes();
+      });
+
+      document.getElementById("dataFim").addEventListener("change", (e) => {
+        filters.dataFim = e.target.value;
+        currentPage = 1;
+        loadSimulacoes();
+      });
+
+      // Limpar filtros
+      function limparFiltros() {
+        filters = {
+          search: "",
+          cliente: "",
+          tipo: "",
+          status: "",
+          dataInicio: "",
+          dataFim: "",
+        };
+        document.getElementById("searchInput").value = "";
+        document.getElementById("clienteFilter").value = "";
+        document.getElementById("tipoFilter").value = "";
+        document.getElementById("statusFilter").value = "";
+        document.getElementById("dataInicio").value = "";
+        document.getElementById("dataFim").value = "";
+        currentPage = 1;
+        loadSimulacoes();
+      }
+
+      // Paginação
+      function changePage(page) {
+        currentPage = page;
+        loadSimulacoes();
+      }
+
+      // Ações
+      function novaSimulacao() {
+        window.location.href = "../simuladores/index.html";
+      }
+
+      // FUNÇÃO PRINCIPAL: Abre a simulação na página correta do tipo de fundo
+      async function abrirSimulacao(id) {
+        try {
+          showLoading();
+          const response = await api.getSimulacao(id);
+          hideLoading();
+
+          if (response.success) {
+            const tipoFundo = response.data.tipoFundo;
+            const codigo = tipoFundo?.codigo;
+
+            // Buscar o arquivo HTML correspondente ao tipo de fundo
+            const paginaHTML = TIPO_FUNDO_PAGES[codigo];
+
+            if (paginaHTML) {
+              // Redirecionar para a página específica do tipo de fundo
+              window.location.href = `../simuladores/${paginaHTML}?id=${id}`;
+            } else {
+              showToast(
+                `Tipo de fundo "${
+                  tipoFundo?.nome || codigo
+                }" ainda não tem página implementada`,
+                "warning"
+              );
+            }
+          }
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      async function duplicarSimulacao(id) {
+        const confirmed = await confirmAction({
+          title: "Duplicar Simulação",
+          message:
+            "Deseja criar uma cópia desta simulação? Você será redirecionado para editá-la.",
+          confirmText: "Duplicar",
+          cancelText: "Cancelar",
+          type: "info",
+        });
+
+        if (!confirmed) return;
+
+        try {
+          showLoading("Duplicando simulação...");
+
+          // Carregar simulação original
+          const response = await api.getSimulacao(id);
+
+          if (response.success) {
+            const original = response.data;
+
+            // Criar nova simulação com dados copiados
+            const novaSim = {
+              titulo: `${original.titulo} (Cópia)`,
+              descricao: original.descricao,
+              cliente: original.cliente?._id,
+              tipoFundo: original.tipoFundo?._id,
+              status: "rascunho",
+              parametros: original.parametros,
+              resultados: original.resultados,
+              detalhes: original.detalhes,
+            };
+
+            const novaResponse = await api.createSimulacao(novaSim);
+
+            if (novaResponse.success) {
+              showToast("Simulação duplicada com sucesso!", "success");
+
+              // Redirecionar para a nova simulação
+              const codigo = original.tipoFundo?.codigo;
+              const paginaHTML = TIPO_FUNDO_PAGES[codigo];
+
+              if (paginaHTML) {
+                window.location.href = `../simuladores/${paginaHTML}?id=${novaResponse.data._id}`;
+              } else {
+                loadSimulacoes(); // Recarregar lista
+              }
+            }
+          }
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      async function compartilharSimulacao(id) {
+        try {
+          showLoading("Gerando link de compartilhamento...");
+
+          const response = await api.compartilharSimulacao(id);
+
+          if (response.success && response.data.linkCompartilhamento) {
+            const link = `${window.location.origin}/simuladores/compartilhada.html?link=${response.data.linkCompartilhamento}`;
+            document.getElementById("linkCompartilhamento").value = link;
+            document.getElementById("modalCompartilhar").style.display = "flex";
+          }
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      async function excluirSimulacao(id) {
+        const confirmed = await confirmAction({
+          title: "Excluir Simulação",
+          message:
+            "Tem certeza que deseja excluir esta simulação? Esta ação não pode ser desfeita.",
+          confirmText: "Excluir",
+          cancelText: "Cancelar",
+          type: "danger",
+          isDanger: true,
+        });
+
+        if (!confirmed) return;
+
+        try {
+          showLoading("Excluindo simulação...");
+          await api.deleteSimulacao(id);
+          showToast("Simulação excluída com sucesso!", "success");
+          loadSimulacoes();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      // Modal compartilhar
+      function closeModalCompartilhar() {
+        document.getElementById("modalCompartilhar").style.display = "none";
+      }
+
+      async function copiarLink() {
+        const link = document.getElementById("linkCompartilhamento").value;
+        await copyToClipboard(link);
+      }
+
+      // Exportar CSV
+      function exportarCSV() {
+        showToast("Funcionalidade de exportação em desenvolvimento", "info");
+      }
+
+      // Inicializar
+      carregarFiltros();
+      loadSimulacoes();
+    </script>
+  </body>
+</html>

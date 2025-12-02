@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nova Simulação - Firm Capital</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+
+    <style>
+      .hub-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .hub-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem 0;
+      }
+
+      .hub-header h1 {
+        font-size: 2.5rem;
+        color: var(--gray-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .hub-header p {
+        font-size: 1.1rem;
+        color: var(--gray-light);
+      }
+
+      .fundos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .fundo-card {
+        background: linear-gradient(
+          135deg,
+          var(--beige) 0%,
+          var(--beige-dark) 100%
+        );
+        border: 2px solid var(--beige-darker);
+        border-radius: 16px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .fundo-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--accent-gold);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+
+      .fundo-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+        border-color: var(--accent-gold);
+      }
+
+      .fundo-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .fundo-card.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .fundo-card.disabled:hover {
+        transform: none;
+        box-shadow: var(--shadow);
+        border-color: var(--beige-darker);
+      }
+
+      .fundo-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(197, 164, 126, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.5rem;
+        color: var(--accent-gold);
+        transition: all 0.3s ease;
+      }
+
+      .fundo-card:hover .fundo-icon {
+        transform: scale(1.1);
+        background: rgba(197, 164, 126, 0.25);
+      }
+
+      .fundo-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-dark);
+        text-align: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .fundo-code {
+        font-size: 0.9rem;
+        color: var(--accent-gold);
+        text-align: center;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .fundo-description {
+        font-size: 0.95rem;
+        color: var(--gray-medium);
+        text-align: center;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+      }
+
+      .fundo-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+      }
+
+      .fundo-features li {
+        padding: 0.5rem 0;
+        color: var(--gray-medium);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .fundo-features li i {
+        color: var(--accent-gold);
+        font-size: 0.8rem;
+      }
+
+      .fundo-status {
+        text-align: center;
+        padding: 0.75rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .fundo-status.disponivel {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+      }
+
+      .fundo-status.em-breve {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+      }
+
+      .cliente-selection {
+        background: var(--beige);
+        border: 1px solid var(--beige-darker);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .cliente-selection h3 {
+        margin: 0 0 1rem 0;
+        color: var(--gray-dark);
+        font-size: 1.1rem;
+      }
+
+      @media (max-width: 768px) {
+        .hub-header h1 {
+          font-size: 2rem;
+        }
+
+        .fundos-grid {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="../images/logos/logo_firm.png"
+            alt="Firm Capital"
+            class="sidebar-logo"
+          />
+          <h1 class="sidebar-title">Firm Capital</h1>
+          <p class="sidebar-subtitle">Nova Simulação</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Voltar</div>
+            <a href="javascript:history.back()" class="nav-item">
+              <i class="fas fa-arrow-left"></i>
+              <span class="nav-item-text">Voltar</span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar">FC</div>
+            <div class="user-details">
+              <div class="user-name">Carregando...</div>
+              <div class="user-role">-</div>
+            </div>
+          </div>
+          <button class="logout-btn" onclick="auth.logout()">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <div class="sidebar-overlay"></div>
+
+      <main class="main-content">
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="menu-toggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Nova Simulação</h1>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="hub-container">
+            <div class="hub-header">
+              <h1>Selecione o Tipo de Fundo</h1>
+              <p>Escolha o tipo de investimento que deseja simular</p>
+            </div>
+
+            <!-- Seleção de Cliente -->
+            <div class="cliente-selection">
+              <h3><i class="fas fa-user-tie"></i> Cliente (Opcional)</h3>
+              <div class="form-group" style="margin-bottom: 0">
+                <select id="clienteSelect">
+                  <option value="">
+                    Selecione um cliente ou deixe em branco
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Grid de Fundos -->
+            <div class="fundos-grid" id="fundosGrid">
+              <!-- Será preenchido via JS -->
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/empresa-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js"></script>
+
+    <script>
+      auth.requireAuth([ROLES.ADMIN, ROLES.USUARIO, ROLES.CLIENTE]);
+
+      let clienteSelecionado = null;
+
+      // Configuração dos fundos disponíveis
+      const fundosDisponiveis = [
+        {
+          codigo: "FII",
+          nome: "Fundo de Investimento Imobiliário",
+          icone: "fas fa-building",
+          descricao:
+            "Investimento em imóveis e empreendimentos imobiliários com foco em renda passiva.",
+          features: [
+            "Análise de rendimento mensal",
+            "Comparação com investimento direto",
+            "Cálculo de IR e taxas",
+            "Simulação de cenários",
+          ],
+          disponivel: true,
+          url: "fii.html",
+        },
+        {
+          codigo: "FIP",
+          nome: "Fundo de Investimento em Participações",
+          icone: "fas fa-handshake",
+          descricao:
+            "Investimento em empresas não listadas em bolsa, focado em Private Equity.",
+          features: [
+            "Análise de participações",
+            "Projeção de retorno",
+            "Estrutura de governança",
+            "Exit strategy",
+          ],
+          disponivel: false,
+          url: "fip.html",
+        },
+        {
+          codigo: "FIP-IE",
+          nome: "Fundo de Infraestrutura (FIP-IE)",
+          icone: "fas fa-road",
+          descricao:
+            "Investimento em projetos de infraestrutura (energia, transporte, saneamento) com isenção fiscal.",
+          features: [
+            "Isenção de IR (Ganho de Capital)",
+            "Projetos de longo prazo",
+            "Fluxo de caixa previsível",
+            "Incentivos fiscais",
+          ],
+          disponivel: true,
+          url: "fip-ie.html",
+        },
+        {
+          codigo: "FIDC",
+          nome: "Fundo de Direitos Creditórios",
+          icone: "fas fa-file-invoice-dollar",
+          descricao:
+            "Investimento em recebíveis e direitos creditórios de empresas.",
+          features: [
+            "Análise de recebíveis",
+            "Risco de crédito",
+            "Rentabilidade esperada",
+            "Liquidez",
+          ],
+          disponivel: false,
+          url: "fidc.html",
+        },
+        {
+          codigo: "FIA",
+          nome: "Fundo de Investimento em Ações",
+          icone: "fas fa-chart-line",
+          descricao: "Investimento em ações de empresas listadas em bolsa.",
+          features: [
+            "Análise de carteira",
+            "Diversificação",
+            "Performance histórica",
+            "Benchmark",
+          ],
+          disponivel: false,
+          url: "fia.html",
+        },
+        {
+          codigo: "FIAGRO",
+          nome: "Fundo de Investimento no Agronegócio",
+          icone: "fas fa-tractor",
+          descricao: "Investimento nas cadeias produtivas agroindustriais.",
+          features: [
+            "Setor do Agronegócio",
+            "Certificados de Recebíveis",
+            "Terras Agrícolas",
+            "Isenção de IR (PF)",
+          ],
+          disponivel: false,
+          url: "fiagro.html",
+        },
+
+      ];
+
+      async function init() {
+        await carregarClientes();
+        renderizarFundos();
+
+        // Verificar se veio cliente da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const clienteId = urlParams.get("cliente");
+        if (clienteId) {
+          document.getElementById("clienteSelect").value = clienteId;
+          clienteSelecionado = clienteId;
+        }
+      }
+
+      async function carregarClientes() {
+        try {
+          const response = await api.getClientes({ ativo: true, limit: 1000 });
+
+          const select = document.getElementById("clienteSelect");
+
+          if (response.success && response.data) {
+            response.data.forEach((cliente) => {
+              const option = document.createElement("option");
+              option.value = cliente._id;
+              option.textContent = `${cliente.nome} - ${cliente.cpfCnpj}`;
+              select.appendChild(option);
+            });
+          }
+
+          select.addEventListener("change", (e) => {
+            clienteSelecionado = e.target.value || null;
+          });
+        } catch (error) {
+          console.error("Erro ao carregar clientes:", error);
+        }
+      }
+
+      function renderizarFundos() {
+        const grid = document.getElementById("fundosGrid");
+
+        grid.innerHTML = fundosDisponiveis
+          .map(
+            (fundo) => `
+        <div class="fundo-card ${!fundo.disponivel ? "disabled" : ""}" 
+             onclick="${
+               fundo.disponivel ? `selecionarFundo('${fundo.url}')` : ""
+             }">
+          <div class="fundo-icon">
+            <i class="${fundo.icone}"></i>
+          </div>
+          <div class="fundo-name">${fundo.nome}</div>
+          <div class="fundo-code">${fundo.codigo}</div>
+          <div class="fundo-description">${fundo.descricao}</div>
+          <ul class="fundo-features">
+            ${fundo.features
+              .map(
+                (feature) => `
+              <li><i class="fas fa-check-circle"></i> ${feature}</li>
+            `
+              )
+              .join("")}
+          </ul>
+          <div class="fundo-status ${
+            fundo.disponivel ? "disponivel" : "em-breve"
+          }">
+            ${fundo.disponivel ? "✓ Disponível" : "⏳ Em Breve"}
+          </div>
+        </div>
+      `
+          )
+          .join("");
+      }
+
+      function selecionarFundo(url) {
+        const params = new URLSearchParams();
+        if (clienteSelecionado) {
+          params.append("cliente", clienteSelecionado);
+        }
+
+        const queryString = params.toString();
+        window.location.href = queryString ? `${url}?${queryString}` : url;
+      }
+
+      init();
+    </script>
+  </body>
+</html>

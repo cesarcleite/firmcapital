@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comparação Investimento: Direto vs FII - Firm Capital</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Adicione ANTES dos outros scripts, logo após o Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/fii.css" />
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="../images/logos/logo_firm.png"
+            alt="Firm Capital"
+            class="sidebar-logo"
+          />
+          <h1 class="sidebar-title">Firm Capital</h1>
+          <p class="sidebar-subtitle">Simulador FII</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Navegação</div>
+            <a href="#" onclick="auth.redirectToDashboard(); return false;" class="nav-item">
+              <i class="fas fa-arrow-left"></i>
+              <span class="nav-item-text">Voltar</span>
+            </a>
+            <a href="index.html" class="nav-item">
+              <i class="fas fa-th"></i>
+              <span class="nav-item-text">Outros Fundos</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Ações</div>
+            <a
+              href="#"
+              class="nav-item"
+              onclick="limparSimulacao(); return false;"
+            >
+              <i class="fas fa-eraser"></i>
+              <span class="nav-item-text">Limpar Tudo</span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar">FC</div>
+            <div class="user-details">
+              <div class="user-name">Carregando...</div>
+              <div class="user-role">-</div>
+            </div>
+          </div>
+          <button class="logout-btn" onclick="auth.logout()">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <div class="sidebar-overlay"></div>
+
+      <main class="main-content">
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="menu-toggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Comparação: Investimento Direto vs FII</h1>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="container">
+            <!-- Informações da Simulação -->
+            <div class="content-card compact">
+              <div class="content-card-header">
+                <h2 class="content-card-title">
+                  <i class="fas fa-info-circle"></i>
+                  Informações da Simulação
+                </h2>
+              </div>
+              <div class="content-card-body">
+                <div class="form-grid-compact">
+                  <div class="form-group">
+                    <label for="titulo">Título *</label>
+                    <input
+                      type="text"
+                      id="titulo"
+                      placeholder="Ex: Análise FII vs Direto - Projeto XYZ"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="cliente">Cliente *</label>
+                    <select id="cliente" required>
+                      <option value="">Selecione...</option>
+                    </select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="descricao">Descrição</label>
+                    <input
+                      type="text"
+                      id="descricao"
+                      placeholder="Contexto desta simulação..."
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Configurações em Accordion -->
+            <div class="sidebar-config">
+              <h2 class="section-title">
+                <i class="fas fa-cog"></i>
+                Configurações
+              </h2>
+
+              <!-- Accordion de Configurações -->
+              <div class="accordion">
+                <!-- Básico -->
+                <div class="accordion-item active">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <i class="fas fa-home"></i>
+                    <span>Configurações Básicas</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                  </div>
+                  <div class="accordion-content">
+                    <div class="form-grid-3col">
+                      <div class="form-group">
+                        <label>Valor do Imóvel</label>
+                        <div class="input-group">
+                          <span class="input-prefix">R$</span>
+                          <input
+                            type="text"
+                            id="valorImovel"
+                            value="100.000.000,00"
+                            data-type="currency"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Valor em Caixa</label>
+                        <div class="input-group">
+                          <span class="input-prefix">R$</span>
+                          <input
+                            type="text"
+                            id="valorCaixa"
+                            value="0"
+                            data-type="currency"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Investimento Total</label>
+                        <div class="input-group">
+                          <span class="input-prefix">R$</span>
+                          <input
+                            type="text"
+                            id="investimentoInicial"
+                            value="100.000.000,00"
+                            data-type="currency"
+                            readonly
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Aluguel Mensal Inicial</label>
+                        <div class="input-group">
+                          <span class="input-prefix">R$</span>
+                          <input
+                            type="text"
+                            id="aluguelInicial"
+                            value="1.000.000,00"
+                            data-type="currency"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Duração (Meses)</label>
+                        <input
+                          type="number"
+                          id="duracao"
+                          value="240"
+                          min="1"
+                          max="600"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>IPCA Anual (%)</label>
+                        <input
+                          type="number"
+                          id="ipcaAnual"
+                          value="4.50"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Correção Caixa Anual (%)</label>
+                        <input
+                          type="number"
+                          id="correcaoCaixaAnual"
+                          value="10.50"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>WACC Anual (%)</label>
+                        <input
+                          type="number"
+                          id="waccAnual"
+                          value="10.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="checkbox-row">
+                      <div class="checkbox-group">
+                        <input
+                          type="checkbox"
+                          id="correcaoImovelIPCA"
+                          checked
+                        />
+                        <label for="correcaoImovelIPCA"
+                          >Corrigir imóvel por IPCA</label
+                        >
+                      </div>
+                      <div class="checkbox-group">
+                        <input
+                          type="checkbox"
+                          id="correcaoCaixaIndexador"
+                          checked
+                        />
+                        <label for="correcaoCaixaIndexador"
+                          >Corrigir caixa por indexador</label
+                        >
+                      </div>
+                      <div class="checkbox-group">
+                        <input
+                          type="checkbox"
+                          id="distribuicoesCaixaIndexador"
+                          checked
+                        />
+                        <label for="distribuicoesCaixaIndexador"
+                          >Distribuições caixa por indexador</label
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Venda do Ativo -->
+                <div class="accordion-item">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <i class="fas fa-tags"></i>
+                    <span>Venda do Ativo</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                  </div>
+                  <div class="accordion-content">
+                    <div class="checkbox-group">
+                      <input type="checkbox" id="habilitarVenda" />
+                      <label for="habilitarVenda"
+                        >Habilitar venda do ativo</label
+                      >
+                    </div>
+                    <div class="form-grid-3col">
+                      <div class="form-group">
+                        <label>Mês da Venda</label>
+                        <input
+                          type="number"
+                          id="mesVenda"
+                          value="240"
+                          min="1"
+                          disabled
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Valor de Venda</label>
+                        <div class="input-group">
+                          <span class="input-prefix">R$</span>
+                          <input
+                            type="text"
+                            id="valorVenda"
+                            value="150.000.000,00"
+                            data-type="currency"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tributação -->
+                <div class="accordion-item">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <i class="fas fa-receipt"></i>
+                    <span>Tributação</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                  </div>
+                  <div class="accordion-content">
+                    <h4 class="subsection-title">Investimento Direto</h4>
+                    <div class="form-grid-3col">
+                      <div class="form-group">
+                        <label>IR Aluguéis (%)</label>
+                        <input
+                          type="number"
+                          id="irAluguelDireto"
+                          value="19.24"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>IR Dividendos (%)</label>
+                        <input
+                          type="number"
+                          id="irDividendoDireto"
+                          value="10.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>IR Ganho Capital (%)</label>
+                        <input
+                          type="number"
+                          id="irGanhoDireto"
+                          value="22.50"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>ITBI (%)</label>
+                        <input
+                          type="number"
+                          id="itbiDireto"
+                          value="0.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                    </div>
+
+                    <h4 class="subsection-title">Fundo Imobiliário (FII)</h4>
+                    <div class="form-grid-3col">
+                      <div class="form-group">
+                        <label>IR Aluguéis (%)</label>
+                        <input
+                          type="number"
+                          id="irAluguelFII"
+                          value="0.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>IR Dividendos (%)</label>
+                        <input
+                          type="number"
+                          id="irDividendoFII"
+                          value="0.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>IR Ganho Capital (%)</label>
+                        <input
+                          type="number"
+                          id="irGanhoFII"
+                          value="0.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>ITBI (%)</label>
+                        <input
+                          type="number"
+                          id="itbiFII"
+                          value="3.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Custos FII -->
+                <div class="accordion-item">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <i class="fas fa-money-check-alt"></i>
+                    <span>Custos FII</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                  </div>
+                  <div class="accordion-content">
+                    <h4 class="subsection-title">Taxas Operacionais</h4>
+                    <div class="form-grid-3col">
+                      <div class="form-group">
+                        <label>Taxa Admin Anual (%)</label>
+                        <input
+                          type="number"
+                          id="taxaAdmin"
+                          value="0.20"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Mínimo Admin Mensal</label>
+                        <div class="input-group">
+                          <span class="input-prefix">R$</span>
+                          <input
+                            type="text"
+                            id="minAdmin"
+                            value="20.000,00"
+                            data-type="currency"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Taxa Gestão Anual (%)</label>
+                        <input
+                          type="number"
+                          id="taxaGestao"
+                          value="0.60"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Mínimo Gestão Mensal</label>
+                        <div class="input-group">
+                          <span class="input-prefix">R$</span>
+                          <input
+                            type="text"
+                            id="minGestao"
+                            value="30.000,00"
+                            data-type="currency"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Taxa Custódia Anual (%)</label>
+                        <input
+                          type="number"
+                          id="taxaCustodia"
+                          value="0.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Mínimo Custódia Mensal</label>
+                        <div class="input-group">
+                          <span class="input-prefix">R$</span>
+                          <input
+                            type="text"
+                            id="minCustodia"
+                            value="0,00"
+                            data-type="currency"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Taxa Consultoria Anual (%)</label>
+                        <input
+                          type="number"
+                          id="taxaConsultoria"
+                          value="0.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Mínimo Consultoria Mensal</label>
+                        <div class="input-group">
+                          <span class="input-prefix">R$</span>
+                          <input
+                            type="text"
+                            id="minConsultoria"
+                            value="0,00"
+                            data-type="currency"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Outros Custos Mensais</label>
+                        <div class="input-group">
+                          <span class="input-prefix">R$</span>
+                          <input
+                            type="text"
+                            id="outrosCustos"
+                            value="1.000,00"
+                            data-type="currency"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <h4 class="subsection-title" style="margin-top: 1.5rem">
+                      Taxa de Distribuição (Emissão)
+                    </h4>
+                    <div class="form-grid-3col">
+                      <div class="form-group">
+                        <label>Taxa Distribuição (%)</label>
+                        <input
+                          type="number"
+                          id="taxaDistribuicao"
+                          value="3.00"
+                          step="0.01"
+                          min="0"
+                          max="10"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Diluir em Meses</label>
+                        <input
+                          type="number"
+                          id="parcelasDistribuicao"
+                          value="1"
+                          min="1"
+                          max="12"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Aplicar sobre</label>
+                        <select id="baseDistribuicao">
+                          <option value="total">Investimento Total</option>
+                          <option value="imovel">Valor do Imóvel</option>
+                        </select>
+                      </div>
+                    </div>
+                    <p
+                      style="
+                        font-size: 0.85rem;
+                        color: var(--gray-medium);
+                        margin-top: 0.5rem;
+                      "
+                    >
+                      <i class="fas fa-info-circle"></i>
+                      Custo de estruturação da emissão (coordenação,
+                      distribuição, honorários). Pode ser diluído em até 12
+                      meses.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Taxas Regulatórias -->
+                <div class="accordion-item">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <i class="fas fa-landmark"></i>
+                    <span>Taxas Regulatórias (CVM/ANBIMA)</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                  </div>
+                  <div class="accordion-content">
+                    <div
+                      id="taxasRegulatoriasSummary"
+                      style="margin-bottom: 1rem"
+                    >
+                      <p style="color: var(--gray-medium); font-size: 0.9rem">
+                        <i class="fas fa-info-circle"></i>
+                        As taxas regulatórias são calculadas automaticamente com
+                        base nas configurações cadastradas no sistema.
+                      </p>
+                    </div>
+
+                    <div id="taxasRegulatoriasList">
+                      <!-- Será preenchido via JavaScript -->
+                      <div
+                        style="
+                          text-align: center;
+                          padding: 2rem;
+                          color: var(--gray-light);
+                        "
+                      >
+                        <i
+                          class="fas fa-spinner fa-spin"
+                          style="font-size: 2rem; margin-bottom: 1rem"
+                        ></i>
+                        <p>Carregando taxas...</p>
+                      </div>
+                    </div>
+
+                    <div
+                      style="
+                        margin-top: 1rem;
+                        padding: 1rem;
+                        background: var(--beige-dark);
+                        border-radius: 6px;
+                        border-left: 3px solid var(--accent-gold);
+                      "
+                    >
+                      <p
+                        style="
+                          font-size: 0.85rem;
+                          color: var(--gray-medium);
+                          margin: 0;
+                        "
+                      >
+                        <strong>Nota:</strong> Para editar ou adicionar taxas
+                        personalizadas, acesse
+                        <a
+                          href="../admin/taxas-regulatorias.html"
+                          style="
+                            color: var(--accent-gold);
+                            text-decoration: underline;
+                          "
+                          >Configurações de Taxas</a
+                        >.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Avançado -->
+                <div class="accordion-item">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <i class="fas fa-cogs"></i>
+                    <span>Configurações Avançadas</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                  </div>
+                  <div class="accordion-content">
+                    <h4 class="subsection-title">Distribuição de Dividendos</h4>
+                    <div class="form-grid-3col">
+                      <div class="form-group">
+                        <label>% Distribuição Direto</label>
+                        <input
+                          type="number"
+                          id="distribDireto"
+                          value="100.00"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>% Distribuição FII</label>
+                        <input
+                          type="number"
+                          id="distribFII"
+                          value="95.00"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                    </div>
+
+                    <h4 class="subsection-title">
+                      Vacância e Custos Operacionais
+                    </h4>
+                    <div class="form-grid-3col">
+                      <div class="form-group">
+                        <label>Taxa de Vacância (%)</label>
+                        <input
+                          type="number"
+                          id="taxaVacancia"
+                          value="0.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Taxa de Inadimplência (%)</label>
+                        <input
+                          type="number"
+                          id="taxaInadimplencia"
+                          value="0.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label>Custos Manutenção Anual (%)</label>
+                        <input
+                          type="number"
+                          id="custosManutencao"
+                          value="0.00"
+                          step="0.01"
+                          data-type="percent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn" onclick="calcular()">
+                <i class="fas fa-calculator"></i>
+                Calcular Simulação
+              </button>
+
+              <div class="progress-bar">
+                <div
+                  class="progress-fill"
+                  id="progressFill"
+                  style="width: 0%"
+                ></div>
+              </div>
+            </div>
+
+            <div class="loading" id="loading">
+              <div class="spinner"></div>
+              <p>Calculando simulação...</p>
+            </div>
+
+            <div id="results" style="display: none">
+              <!-- Resultados serão inseridos aqui pelo JavaScript -->
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal de Cliente -->
+    <div id="modalCliente" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Selecionar Cliente</h2>
+          <button class="modal-close" onclick="closeModalCliente()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>
+            É necessário associar esta simulação a um cliente antes de salvar.
+          </p>
+          <div class="form-group">
+            <label for="clienteModal">Selecione o Cliente *</label>
+            <select id="clienteModal" required>
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <!-- ADICIONE ESTE LINK -->
+          <div style="text-align: center; margin-top: 1rem">
+            <a
+              href="#"
+              onclick="closeModalCliente(); showModalCadastroCliente(); return false;"
+              style="
+                color: var(--accent-gold);
+                text-decoration: none;
+                font-size: 0.9rem;
+              "
+            >
+              <i class="fas fa-plus-circle"></i> Cliente não encontrado?
+              Cadastre aqui
+            </a>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModalCliente()">
+            Cancelar
+          </button>
+          <button class="btn" onclick="confirmarCliente()">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Cadastro Rápido de Cliente -->
+    <div id="modalCadastroCliente" class="modal" style="display: none">
+      <div class="modal-content" style="max-width: 600px">
+        <div class="modal-header">
+          <h2>Cadastro Rápido de Cliente</h2>
+          <button class="modal-close" onclick="closeModalCadastroCliente()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid-compact">
+            <div class="form-group full-width">
+              <label for="novoClienteNome">Nome / Razão Social *</label>
+              <input type="text" id="novoClienteNome" required />
+            </div>
+            <div class="form-group">
+              <label for="novoClienteTipo">Tipo</label>
+              <select
+                id="novoClienteTipo"
+                onchange="ajustarCampoCpfCnpj()"
+              >
+                <option value="PF">Pessoa Física</option>
+                <option value="PJ">Pessoa Jurídica</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="novoClienteCpfCnpj">CPF/CNPJ</label>
+              <input type="text" id="novoClienteCpfCnpj" />
+            </div>
+            <div class="form-group">
+              <label for="novoClienteEmail">E-mail</label>
+              <input type="email" id="novoClienteEmail" />
+            </div>
+            <div class="form-group">
+              <label for="novoClienteTelefone">Telefone</label>
+              <input type="text" id="novoClienteTelefone" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            onclick="closeModalCadastroCliente()"
+          >
+            Cancelar
+          </button>
+          <button class="btn" onclick="salvarNovoCliente()">
+            <i class="fas fa-save"></i>
+            Cadastrar Cliente
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Título e Descrição -->
+    <div id="modalTitulo" class="modal" style="display: none">
+      <div class="modal-content" style="max-width: 600px">
+        <div class="modal-header">
+          <h2>Informações da Simulação</h2>
+          <button class="modal-close" onclick="closeModalTitulo()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p style="margin-bottom: 1rem; color: var(--gray-dark)">
+            É necessário informar o título da simulação antes de salvar.
+          </p>
+          <div class="form-group">
+            <label for="tituloModal">Título da Simulação *</label>
+            <input
+              type="text"
+              id="tituloModal"
+              placeholder="Ex: Análise FII vs Direto - Projeto XYZ"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="descricaoModal">Descrição</label>
+            <textarea
+              id="descricaoModal"
+              placeholder="Contexto desta simulação..."
+              rows="3"
+              style="
+                width: 100%;
+                padding: 0.5rem;
+                border: 1.5px solid var(--beige-darker);
+                border-radius: 6px;
+                font-family: var(--font-primary);
+                resize: vertical;
+              "
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModalTitulo()">
+            Cancelar
+          </button>
+          <button class="btn" onclick="confirmarTitulo()">
+            <i class="fas fa-check"></i>
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/empresa-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/fii/fii-interface.js"></script>
+    <script src="../js/fii/fii-calculos.js"></script>
+    <script src="../js/fii/pdf-generator-fii.js"></script>
+  </body>
+</html>

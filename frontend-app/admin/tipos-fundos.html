@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tipos de Fundos - Firm Capital</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="../images/logos/logo_firm.png"
+            alt="Firm Capital"
+            class="sidebar-logo"
+          />
+          <h1 class="sidebar-title">Firm Capital</h1>
+          <p class="sidebar-subtitle">Painel Administrativo</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <a href="dashboard.html" class="nav-item">
+              <i class="fas fa-home"></i>
+              <span class="nav-item-text">Dashboard</span>
+            </a>
+            <a href="usuarios.html" class="nav-item">
+              <i class="fas fa-users"></i>
+              <span class="nav-item-text">Usuários</span>
+            </a>
+            <a href="clientes.html" class="nav-item">
+              <i class="fas fa-user-tie"></i>
+              <span class="nav-item-text">Clientes</span>
+            </a>
+          </div>
+
+          <!-- TEM QUE BOTAR EM TODOS HTML ISSO -->
+          <div class="nav-section">
+            <div class="nav-section-title">Simulações</div>
+            <a href="simulacoes.html" class="nav-item">
+              <i class="fas fa-list"></i>
+              <span class="nav-item-text">Todas Simulações</span>
+            </a>
+            <a href="../simuladores/index.html" class="nav-item">
+              <i class="fas fa-building"></i>
+              <span class="nav-item-text">Nova Simulação</span>
+            </a>
+            <a href="tipos-fundos.html" class="nav-item">
+              <i class="fas fa-cog"></i>
+              <span class="nav-item-text">Tipos de Fundos</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Configurações</div>
+            <a href="empresa.html" class="nav-item">
+              <i class="fas fa-building-columns"></i>
+              <span class="nav-item-text">Empresa</span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar">FC</div>
+            <div class="user-details">
+              <div class="user-name">Carregando...</div>
+              <div class="user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <div class="sidebar-overlay"></div>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="menu-toggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Tipos de Fundos</h1>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-folder"></i>
+                Tipos de Fundos Disponíveis
+              </h2>
+            </div>
+            <div class="content-card-body">
+              <div id="tiposFundosGrid" class="stats-grid"></div>
+            </div>
+          </div>
+
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-list"></i>
+                Detalhes dos Tipos
+              </h2>
+            </div>
+            <div class="content-card-body">
+              <div class="table-wrapper">
+                <table class="table" id="tiposTable">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Código</th>
+                      <th>Descrição</th>
+                      <th>Status</th>
+                      <th>Ordem</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal Editar Tipo -->
+    <div id="modalTipo" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Editar Tipo de Fundo</h2>
+          <button class="modal-close" onclick="closeModalTipo()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="formTipo">
+            <input type="hidden" id="tipoId" />
+
+            <div class="form-group">
+              <label for="nome">Nome</label>
+              <input type="text" id="nome" required />
+            </div>
+
+            <div class="form-group">
+              <label for="descricao">Descrição</label>
+              <textarea id="descricao" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="icone">Ícone (classe Font Awesome)</label>
+              <input type="text" id="icone" placeholder="fas fa-building" />
+            </div>
+
+            <div class="form-group">
+              <label for="cor">Cor</label>
+              <input type="color" id="cor" />
+            </div>
+
+            <div class="form-group">
+              <label for="ordem">Ordem de Exibição</label>
+              <input type="number" id="ordem" min="0" />
+            </div>
+
+            <div class="checkbox-group">
+              <input type="checkbox" id="ativo" checked />
+              <label for="ativo">Tipo ativo</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModalTipo()">
+            Cancelar
+          </button>
+          <button class="btn" onclick="salvarTipo()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/empresa-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js"></script>
+
+    <style>
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 1rem;
+      }
+
+      .modal-content {
+        background: var(--beige);
+        border-radius: 12px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-xl);
+      }
+
+      .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--beige-darker);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--gray-dark);
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--gray-medium);
+        cursor: pointer;
+        padding: 0.5rem;
+      }
+
+      .modal-close:hover {
+        color: var(--gray-dark);
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--beige-darker);
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+      }
+
+      .tipo-card {
+        background: var(--beige);
+        border: 2px solid var(--beige-darker);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+
+      .tipo-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent-gold);
+      }
+
+      .tipo-card-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .tipo-card-name {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--gray-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .tipo-card-code {
+        font-size: 0.9rem;
+        color: var(--gray-light);
+        font-family: monospace;
+      }
+    </style>
+
+    <script>
+      auth.requireAuth([ROLES.ADMIN]);
+
+      let editingTipoId = null;
+
+      async function loadTiposFundos() {
+        try {
+          showLoading();
+
+          const response = await api.getTiposFundos({ ativo: true });
+
+          // Renderizar cards
+          const gridContainer = document.getElementById("tiposFundosGrid");
+          gridContainer.innerHTML = response.data
+            .map(
+              (tipo) => `
+          <div class="tipo-card" onclick="editarTipo('${tipo._id}')">
+            <div class="tipo-card-icon" style="color: ${tipo.cor}">
+              <i class="${tipo.icone}"></i>
+            </div>
+            <div class="tipo-card-name">${tipo.nome}</div>
+            <div class="tipo-card-code">${tipo.codigo}</div>
+          </div>
+        `
+            )
+            .join("");
+
+          // Renderizar tabela
+          const columns = [
+            { field: "nome" },
+            { field: "codigo" },
+            {
+              field: "descricao",
+              render: (v) =>
+                v ? (v.length > 50 ? v.substring(0, 50) + "..." : v) : "-",
+            },
+            {
+              field: "ativo",
+              render: (v) => `<span class="badge ${
+                v ? "badge-success" : "badge-error"
+              }">
+              ${v ? "Ativo" : "Inativo"}
+            </span>`,
+            },
+            { field: "ordem" },
+          ];
+
+          const actions = [
+            { icon: "fas fa-edit", title: "Editar", onClick: "editarTipo" },
+          ];
+
+          dashboardInstance.renderTable(
+            "tiposTable",
+            response.data || [],
+            columns,
+            actions
+          );
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      async function editarTipo(id) {
+        try {
+          showLoading();
+          const response = await api.getTipoFundo(id);
+          hideLoading();
+
+          if (response.success) {
+            const tipo = response.data;
+            editingTipoId = id;
+
+            document.getElementById("tipoId").value = id;
+            document.getElementById("nome").value = tipo.nome;
+            document.getElementById("descricao").value = tipo.descricao || "";
+            document.getElementById("icone").value = tipo.icone || "";
+            document.getElementById("cor").value = tipo.cor || "#c5a47e";
+            document.getElementById("ordem").value = tipo.ordem || 0;
+            document.getElementById("ativo").checked = tipo.ativo;
+
+            document.getElementById("modalTipo").style.display = "flex";
+          }
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      function closeModalTipo() {
+        document.getElementById("modalTipo").style.display = "none";
+        document.getElementById("formTipo").reset();
+        editingTipoId = null;
+      }
+
+      async function salvarTipo() {
+        const form = document.getElementById("formTipo");
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        const data = {
+          nome: document.getElementById("nome").value.trim(),
+          descricao:
+            document.getElementById("descricao").value.trim() || undefined,
+          icone: document.getElementById("icone").value.trim() || undefined,
+          cor: document.getElementById("cor").value,
+          ordem: parseInt(document.getElementById("ordem").value) || 0,
+          ativo: document.getElementById("ativo").checked,
+        };
+
+        try {
+          showLoading();
+          await api.updateTipoFundo(editingTipoId, data);
+          showToast("Tipo de fundo atualizado com sucesso!", "success");
+          closeModalTipo();
+          loadTiposFundos();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      loadTiposFundos();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+.clients-section {
+  padding: 50px 0;
+  background-color: #fff;
+  width: 100%;
+  /* overflow: hidden; */
+}
+
+.clients-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.clients-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.clients-subtitle {
+  color: #c5a47e;
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+
+.clients-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: #2c2c2c;
+  margin-bottom: 25px;
+}
+
+.clients-description {
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #595959;
+}
+
+.clients-marquee {
+  position: relative;
+  padding: 40px 0;
+  width: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 10%,
+    #000 90%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 10%,
+    #000 90%,
+    transparent
+  );
+}
+
+.clients-track {
+  display: flex;
+  animation: scroll 30s linear infinite;
+  width: max-content;
+}
+
+.clients-track:hover {
+  animation-play-state: paused;
+}
+
+.client-logo {
+  width: 200px;
+  height: 100px;
+  margin: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.client-logo img {
+  max-width: 180px;
+  max-height: 90px;
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.client-logo:hover img {
+  filter: grayscale(0%);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .client-logo {
+    width: 160px;
+    height: 80px;
+    margin: 0;
+  }
+
+  .client-logo img {
+    max-width: 140px;
+    max-height: 70px;
+  }
+
+  .clients-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .client-logo {
+    width: 140px;
+    height: 70px;
+    margin: 0 15px;
+  }
+
+  .client-logo img {
+    max-width: 120px;
+    max-height: 60px;
+  }
+}

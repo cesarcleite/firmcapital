@@ -1,0 +1,23 @@
+Se o Ativo for vendido, o PL a partir daquele momento é o da venda do ativo pois não existe mais ativo, tudo virou dinheiro.
+
+Gráfico mostra o mês zero o nde está tudo zerado e estraga o gráfico, tem de iniciar no mês 1
+
+Preciso de scroll dentro dos detalhes mensais, só vejo os primeiros meses e está tudo amontoado na horizontal. Além disso, tem poucas informações, preciso de todas e detalhes sobre os cálculos no mouse over. ROE e DY estão com números absurdos, está errado o calculo. Quero colunas de somatório do agrupamento, por exemplo, custos, tem que ter uma coluna com o somatório de tudo e quero de cor diferente.
+
+O pL inicial deve ser sempre o PL final com a correção do IPCA. Deve se observar sempre o PL final pois pode ter incorrido o incremento de dividendos não distribuídos.
+
+Foram retirados os valores mínimos de gestão e administração bem como custódia percentual e custódia mínima que estavam na estrutura incial. Devem ser reincorporados ao modelo com suas metodologias originais. Além disso, dentro d amesma metodologia, deve ser inserido um valor percentual de consultoria e um mínimo mensal.
+
+ITBI não está entrando nos custos do mês 1
+
+Quero também um mouse over nos cards para explicar como se chegou naquele indicador
+
+Na minha opinião, a margem líquida deve ser calculada sempre em função do valor efetivamente distribuído, ou seja, se distribui 95%, tenho de calcular sobre essa base e não de 100%.
+
+O valor de venda do ativo tem que entrar como uma receita e é tributado na base de ganho de capital, deve ter uma coluna separada só para esse tipo de entrada e de tributo.
+
+
+
+
+------------------
+

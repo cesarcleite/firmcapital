@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerenciar Usuários - Firm Capital</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="../images/logos/logo_firm.png"
+            alt="Firm Capital"
+            class="sidebar-logo"
+          />
+          <h1 class="sidebar-title">Firm Capital</h1>
+          <p class="sidebar-subtitle">Painel Administrativo</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <div class="nav-section-title">Principal</div>
+            <a href="dashboard.html" class="nav-item">
+              <i class="fas fa-home"></i>
+              <span class="nav-item-text">Dashboard</span>
+            </a>
+            <a href="usuarios.html" class="nav-item active">
+              <i class="fas fa-users"></i>
+              <span class="nav-item-text">Usuários</span>
+            </a>
+            <a href="clientes.html" class="nav-item">
+              <i class="fas fa-user-tie"></i>
+              <span class="nav-item-text">Clientes</span>
+            </a>
+          </div>
+
+          <!-- TEM QUE BOTAR EM TODOS HTML ISSO -->
+          <div class="nav-section">
+            <div class="nav-section-title">Simulações</div>
+            <a href="simulacoes.html" class="nav-item">
+              <i class="fas fa-list"></i>
+              <span class="nav-item-text">Todas Simulações</span>
+            </a>
+            <a href="../simuladores/index.html" class="nav-item">
+              <i class="fas fa-building"></i>
+              <span class="nav-item-text">Nova Simulação</span>
+            </a>
+            <a href="tipos-fundos.html" class="nav-item">
+              <i class="fas fa-cog"></i>
+              <span class="nav-item-text">Tipos de Fundos</span>
+            </a>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title">Configurações</div>
+            <a href="empresa.html" class="nav-item">
+              <i class="fas fa-building-columns"></i>
+              <span class="nav-item-text">Empresa</span>
+            </a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar">FC</div>
+            <div class="user-details">
+              <div class="user-name">Carregando...</div>
+              <div class="user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <div class="sidebar-overlay"></div>
+
+      <main class="main-content">
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="menu-toggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Gerenciar Usuários</h1>
+          </div>
+          <div class="topbar-right">
+            <button class="btn" onclick="openModalNovoUsuario()">
+              <i class="fas fa-plus"></i> Novo Usuário
+            </button>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="content-card">
+            <div class="content-card-body">
+              <div class="flex gap-2">
+                <div class="form-group" style="flex: 1; margin-bottom: 0">
+                  <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Buscar por nome ou email..."
+                    style="margin-bottom: 0"
+                  />
+                </div>
+                <div class="form-group" style="width: 200px; margin-bottom: 0">
+                  <select id="roleFilter" style="margin-bottom: 0">
+                    <option value="">Todos os Tipos</option>
+                    <option value="admin">Admin</option>
+                    <option value="usuario">Usuário</option>
+                    <option value="cliente">Cliente</option>
+                  </select>
+                </div>
+                <div class="form-group" style="width: 150px; margin-bottom: 0">
+                  <select id="statusFilter" style="margin-bottom: 0">
+                    <option value="">Todos Status</option>
+                    <option value="true">Ativo</option>
+                    <option value="false">Inativo</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-card">
+            <div class="content-card-header">
+              <h2 class="content-card-title">
+                <i class="fas fa-users"></i>
+                Lista de Usuários
+              </h2>
+            </div>
+            <div class="content-card-body">
+              <div class="table-wrapper">
+                <table class="table" id="usuariosTable">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Email</th>
+                      <th>Tipo</th>
+                      <th>Telefone</th>
+                      <th>Status</th>
+                      <th>Criado em</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="pagination" id="pagination"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div id="modalUsuario" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Novo Usuário</h2>
+          <button class="modal-close" onclick="closeModalUsuario()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="formUsuario">
+            <input type="hidden" id="usuarioId" />
+
+            <div class="form-group">
+              <label for="nome">Nome Completo *</label>
+              <input type="text" id="nome" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="role">Tipo de Usuário *</label>
+              <select id="role" required>
+                <option value="">Selecione...</option>
+                <option value="admin">Administrador</option>
+                <option value="usuario">Usuário</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="telefone">Telefone</label>
+              <input type="tel" id="telefone" />
+            </div>
+
+            <div class="form-group" id="senhaGroup">
+              <label for="senha">Senha *</label>
+              <input type="password" id="senha" />
+              <small>Mínimo 6 caracteres</small>
+            </div>
+
+            <div class="checkbox-group">
+              <input type="checkbox" id="ativo" checked />
+              <label for="ativo">Usuário ativo</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModalUsuario()">
+            Cancelar
+          </button>
+          <button class="btn" onclick="salvarUsuario()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/empresa-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js"></script>
+
+    <style>
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 1rem;
+      }
+
+      .modal-content {
+        background: var(--beige);
+        border-radius: 12px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-xl);
+      }
+
+      .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--beige-darker);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--gray-dark);
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--gray-medium);
+        cursor: pointer;
+        padding: 0.5rem;
+      }
+
+      .modal-close:hover {
+        color: var(--gray-dark);
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--beige-darker);
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+      }
+    </style>
+
+    <script>
+      auth.requireAuth([ROLES.ADMIN]);
+
+      let currentPage = 1;
+      let filters = { search: "", role: "", ativo: "" };
+      let editingUserId = null;
+
+      async function loadUsuarios() {
+        try {
+          showLoading();
+
+          const params = {
+            page: currentPage,
+            limit: 20,
+          };
+
+          if (filters.search) params.search = filters.search;
+          if (filters.role) params.role = filters.role;
+          if (filters.ativo) params.ativo = filters.ativo;
+
+          const response = await api.getUsuarios(params);
+
+          const columns = [
+            { field: "nome" },
+            { field: "email" },
+            {
+              field: "role",
+              render: (v) => {
+                const labels = {
+                  admin: "Admin",
+                  usuario: "Usuário",
+                  cliente: "Cliente",
+                };
+                const badges = {
+                  admin: "badge-error",
+                  usuario: "badge-info",
+                  cliente: "badge-gold",
+                };
+                return `<span class="badge ${badges[v]}">${labels[v]}</span>`;
+              },
+            },
+            {
+              field: "telefone",
+              render: (v) => (v ? formatPhone(v) : "-"),
+            },
+            {
+              field: "ativo",
+              render: (v) => `<span class="badge ${
+                v ? "badge-success" : "badge-error"
+              }">
+              ${v ? "Ativo" : "Inativo"}
+            </span>`,
+            },
+            { field: "dataCriacao", render: (v) => formatDate(v) },
+          ];
+
+          const actions = [
+            { icon: "fas fa-edit", title: "Editar", onClick: "editarUsuario" },
+            {
+              icon: "fas fa-trash",
+              title: "Desativar",
+              onClick: "desativarUsuario",
+            },
+          ];
+
+          dashboardInstance.renderTable(
+            "usuariosTable",
+            response.data || [],
+            columns,
+            actions
+          );
+
+          if (response.pagination?.pages > 1) {
+            dashboardInstance.renderPagination(
+              "pagination",
+              currentPage,
+              response.pagination.pages,
+              "changePage"
+            );
+          } else {
+            document.getElementById("pagination").innerHTML = "";
+          }
+
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      const searchDebounced = debounce((value) => {
+        filters.search = value;
+        currentPage = 1;
+        loadUsuarios();
+      }, 500);
+
+      document.getElementById("searchInput").addEventListener("input", (e) => {
+        searchDebounced(e.target.value);
+      });
+
+      document.getElementById("roleFilter").addEventListener("change", (e) => {
+        filters.role = e.target.value;
+        currentPage = 1;
+        loadUsuarios();
+      });
+
+      document
+        .getElementById("statusFilter")
+        .addEventListener("change", (e) => {
+          filters.ativo = e.target.value;
+          currentPage = 1;
+          loadUsuarios();
+        });
+
+      function changePage(page) {
+        currentPage = page;
+        loadUsuarios();
+      }
+
+      function openModalNovoUsuario() {
+        editingUserId = null;
+        document.getElementById("modalTitle").textContent = "Novo Usuário";
+        document.getElementById("formUsuario").reset();
+        document.getElementById("usuarioId").value = "";
+        document.getElementById("senhaGroup").style.display = "block";
+        document.getElementById("senha").required = true;
+        document.getElementById("ativo").checked = true;
+        document.getElementById("modalUsuario").style.display = "flex";
+      }
+
+      async function editarUsuario(id) {
+        try {
+          showLoading();
+          const response = await api.getUsuario(id);
+          hideLoading();
+
+          if (response.success) {
+            const user = response.data;
+            editingUserId = id;
+
+            document.getElementById("modalTitle").textContent =
+              "Editar Usuário";
+            document.getElementById("usuarioId").value = id;
+            document.getElementById("nome").value = user.nome;
+            document.getElementById("email").value = user.email;
+            document.getElementById("role").value = user.role;
+            document.getElementById("telefone").value = user.telefone || "";
+            document.getElementById("ativo").checked = user.ativo;
+            document.getElementById("senhaGroup").style.display = "none";
+            document.getElementById("senha").required = false;
+
+            document.getElementById("modalUsuario").style.display = "flex";
+          }
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      function closeModalUsuario() {
+        document.getElementById("modalUsuario").style.display = "none";
+        document.getElementById("formUsuario").reset();
+        editingUserId = null;
+      }
+
+      async function salvarUsuario() {
+        const form = document.getElementById("formUsuario");
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        const data = {
+          nome: document.getElementById("nome").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          role: document.getElementById("role").value,
+          telefone:
+            document.getElementById("telefone").value.trim() || undefined,
+          ativo: document.getElementById("ativo").checked,
+        };
+
+        if (!editingUserId) {
+          data.senha = document.getElementById("senha").value;
+        }
+
+        try {
+          showLoading();
+
+          if (editingUserId) {
+            await api.updateUsuario(editingUserId, data);
+            showToast("Usuário atualizado com sucesso!", "success");
+          } else {
+            await api.post(API_CONFIG.ENDPOINTS.REGISTER, data, true);
+            showToast("Usuário criado com sucesso!", "success");
+          }
+
+          closeModalUsuario();
+          loadUsuarios();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      async function desativarUsuario(id) {
+        const confirmed = await confirmAction({
+          title: "Desativar Usuário",
+          message:
+            "Tem certeza que deseja desativar este usuário? Esta ação pode ser revertida posteriormente.",
+          confirmText: "Desativar",
+          cancelText: "Cancelar",
+          type: "warning",
+          isDanger: true,
+        });
+
+        if (!confirmed) return;
+
+        try {
+          showLoading();
+          await api.deleteUsuario(id);
+          showToast("Usuário desativado com sucesso!", "success");
+          loadUsuarios();
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
+      }
+
+      document
+        .getElementById("telefone")
+        .addEventListener("input", function (e) {
+          let value = e.target.value.replace(/\D/g, "");
+          if (value.length <= 11) {
+            if (value.length <= 10) {
+              value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
+            } else {
+              value = value.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
+            }
+            e.target.value = value;
+          }
+        });
+
+      loadUsuarios();
+    </script>
+  </body>
+</html>
