@@ -270,8 +270,10 @@ function performCalculation() {
       valorImovelAtualDireto = 0;
     }
 
-    const totalCustos = custosOperacionais + custoITBI + irAluguel + irVenda;
-    const lucroOperacional = aluguelEfetivo + receitaVenda - totalCustos;
+    // totalCustos: apenas custos operacionais reais, SEM IR de venda
+    // (irVenda já foi descontado do caixa na linha 269)
+    const totalCustos = custosOperacionais + custoITBI + irAluguel;
+    const lucroOperacional = aluguelEfetivo - totalCustos;
 
     let irDividendo = 0;
     let dividendo = 0;
@@ -297,10 +299,32 @@ function performCalculation() {
     totalDividendosDireto += dividendo;
     cashFlowDireto.push(dividendo);
 
-    const roe = plInicio > 0 ? ((dividendo + reinvestimento) / plInicio) * 100 : 0;
-    const dy = plInicio > 0 ? (dividendo / plInicio) * 100 : 0;
-    const margemBase = distribDireto * aluguelBruto;
-    const margem = margemBase > 0 ? (dividendo / margemBase) * 100 : 0;
+    // ROE e DY: tratamento especial para meses com venda
+    let roe, dy;
+    if (receitaVenda > 0) {
+      // No mês da venda, ROE = ganho total / PL início
+      const ganhoVenda = valorVenda - irVenda - valorImovelAtualDireto;
+      const resultadoTotal = aluguelEfetivo - custosOperacionais + ganhoVenda;
+      roe = plInicio > 0 ? (resultadoTotal / plInicio) * 100 : 0;
+      dy = plInicio > 0 ? (dividendo / plInicio) * 100 : 0;
+    } else {
+      // Cálculo normal
+      roe = plInicio > 0 ? ((dividendo + reinvestimento) / plInicio) * 100 : 0;
+      dy = plInicio > 0 ? (dividendo / plInicio) * 100 : 0;
+    }
+    
+    // Para meses com venda, calcular margem considerando a receita de venda
+    let margem;
+    if (receitaVenda > 0) {
+      // Margem baseada no ganho total vs receita total
+      const receitaTotal = aluguelEfetivo + receitaVenda;
+      const ganhoLiquido = receitaVenda - irVenda + aluguelEfetivo - custosOperacionais;
+      margem = receitaTotal > 0 ? (ganhoLiquido / receitaTotal) * 100 : 0;
+    } else {
+      // Cálculo normal para meses sem venda
+      const margemBase = distribDireto * aluguelBruto;
+      margem = margemBase > 0 ? (dividendo / margemBase) * 100 : 0;
+    }
 
     if (!habilitarVenda || m !== mesVenda) {
       valorCaixaAtualDireto += reinvestimento;
@@ -428,7 +452,7 @@ function performCalculation() {
       taxaANBIMARegistroMes +
       taxaDistribuicaoMes;
 
-    const lucroOperacional = aluguelEfetivo + receitaVenda - totalCustosFII;
+    const lucroOperacional = aluguelEfetivo - totalCustosFII;
 
     let irDividendo = 0;
     let dividendo = 0;
@@ -454,12 +478,32 @@ function performCalculation() {
     totalDividendosFII += dividendo;
     cashFlowFII.push(dividendo);
 
-    // ROE = (Dividendo Distribuído + Reinvestimento) / PL Início * 100
-    const roe = plInicio > 0 ? ((dividendo + reinvestimento) / plInicio) * 100 : 0;
-    // DY = Dividendo Líquido Distribuído / PL Início * 100
-    const dy = plInicio > 0 ? (dividendo / plInicio) * 100 : 0;
-    const margemBase = distribFII * aluguelBruto;
-    const margem = margemBase > 0 ? (dividendo / margemBase) * 100 : 0;
+    // ROE e DY: tratamento especial para meses com venda
+    let roe, dy;
+    if (receitaVenda > 0) {
+      // No mês da venda, ROE = ganho total / PL início
+      const ganhoVenda = valorVenda - irVenda - valorImovelAtualFII;
+      const resultadoTotal = aluguelEfetivo - totalCustosFII + ganhoVenda;
+      roe = plInicio > 0 ? (resultadoTotal / plInicio) * 100 : 0;
+      dy = plInicio > 0 ? (dividendo / plInicio) * 100 : 0;
+    } else {
+      // Cálculo normal
+      roe = plInicio > 0 ? ((dividendo + reinvestimento) / plInicio) * 100 : 0;
+      dy = plInicio > 0 ? (dividendo / plInicio) * 100 : 0;
+    }
+    
+    // Para meses com venda, calcular margem considerando a receita de venda
+    let margem;
+    if (receitaVenda > 0) {
+      // Margem baseada no ganho total vs receita total
+      const receitaTotal = aluguelEfetivo + receitaVenda;
+      const ganhoLiquido = receitaVenda - irVenda + aluguelEfetivo - totalCustosFII;
+      margem = receitaTotal > 0 ? (ganhoLiquido / receitaTotal) * 100 : 0;
+    } else {
+      // Cálculo normal para meses sem venda
+      const margemBase = distribFII * aluguelBruto;
+      margem = margemBase > 0 ? (dividendo / margemBase) * 100 : 0;
+    }
 
     if (!habilitarVenda || m !== mesVenda) {
       valorCaixaAtualFII += reinvestimento;
@@ -576,9 +620,19 @@ function performCalculation() {
     dadosFII.reduce((sum, d) => sum + (isFinite(d.margem) ? d.margem : 0), 0) /
     dadosFII.length;
 
-  // ✅ CORREÇÃO CRÍTICA: Adicionar plFinal ao cashflow ANTES de calcular TIR
-  cashFlowDireto.push(plFinalDireto);
-  cashFlowFII.push(plFinalFII);
+  // Cálculo da TIR
+  // CashFlow já foi construído no loop com dividendos mensais
+  // Adicionar apenas plFinal ao último mês (que já tem o dividendo do mês)
+  const ultimoMesDireto = cashFlowDireto.length - 1;
+  const ultimoMesFII = cashFlowFII.length - 1;
+  
+  if (ultimoMesDireto >= 0) {
+    cashFlowDireto[ultimoMesDireto] = (cashFlowDireto[ultimoMesDireto] || 0) + plFinalDireto;
+  }
+  
+  if (ultimoMesFII >= 0) {
+    cashFlowFII[ultimoMesFII] = (cashFlowFII[ultimoMesFII] || 0) + plFinalFII;
+  }
 
   const tirDiretoMensal = calcularTIR(cashFlowDireto);
   const tirFIIMensal = calcularTIR(cashFlowFII);

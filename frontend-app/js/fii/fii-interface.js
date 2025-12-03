@@ -1126,10 +1126,19 @@ function updateInterface(
     margemDiff > 0.01 ? "positive" : margemDiff < -0.01 ? "negative" : "neutral"
   }`;
 
-  const vantagem =
-    Math.abs(valorTotalDireto) > 0
-      ? (diferenca / Math.abs(valorTotalDireto)) * 100
-      : 0;
+  // Vantagem Relativa = Diferença de ROI (Retorno sobre Investimento)
+  // ROI = (Valor Final - Investimento Inicial) / Investimento Inicial * 100
+  const valorInicialDireto = dadosDireto.length > 0 ? 
+    (dadosDireto[0].plInicio || valorTotalDireto) : valorTotalDireto;
+  const valorInicialFII = dadosFII.length > 0 ? 
+    (dadosFII[0].plInicio || valorTotalFII) : valorTotalFII;
+  
+  const roiDireto = valorInicialDireto > 0 ? 
+    ((valorTotalDireto - valorInicialDireto) / valorInicialDireto) * 100 : 0;
+  const roiFII = valorInicialFII > 0 ? 
+    ((valorTotalFII - valorInicialFII) / valorInicialFII) * 100 : 0;
+  
+  const vantagem = roiFII - roiDireto;
   document.getElementById("vantagem").textContent = `${formatNumber(
     Math.abs(vantagem),
     2
@@ -1192,8 +1201,8 @@ function getTooltipHtml(type) {
     },
     vantagem: {
       title: "Vantagem Relativa",
-      expl: "Comparação percentual do resultado total entre as opções.",
-      formula: "(Valor Total FII - Valor Total Direto) / Valor Total Direto",
+      expl: "Diferença de ROI (Retorno sobre Investimento) entre as opções.",
+      formula: "ROI FII - ROI Direto",
       interp: "Positivo favorece FII, negativo favorece Direto."
     },
     diferenca: {
@@ -1236,11 +1245,13 @@ function mostrarAlertas() {
 
   const alertas = [];
 
+  // Filtrar meses com prejuízo, mas ignorar meses com venda de ativo
+  // pois o lucro da venda não está no lucroOperacional
   const mesesPrejuizoDireto = dadosDireto.filter(
-    (d) => d.lucroOperacional < 0
+    (d) => d.lucroOperacional < 0 && d.receitaVenda === 0
   ).length;
   const mesesPrejuizoFII = dadosFII.filter(
-    (d) => d.lucroOperacional < 0
+    (d) => d.lucroOperacional < 0 && d.receitaVenda === 0
   ).length;
 
   if (mesesPrejuizoDireto > 0) {
