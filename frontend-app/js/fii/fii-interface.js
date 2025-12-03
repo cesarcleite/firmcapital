@@ -1126,19 +1126,21 @@ function updateInterface(
     margemDiff > 0.01 ? "positive" : margemDiff < -0.01 ? "negative" : "neutral"
   }`;
 
-  // Vantagem Relativa = Diferença de ROI (Retorno sobre Investimento)
-  // ROI = (Valor Final - Investimento Inicial) / Investimento Inicial * 100
+  // Vantagem Relativa = Comparação do GANHO nominal
+  // Ganho = Valor Final - Investimento Inicial
   const valorInicialDireto = dadosDireto.length > 0 ? 
     (dadosDireto[0].plInicio || valorTotalDireto) : valorTotalDireto;
   const valorInicialFII = dadosFII.length > 0 ? 
     (dadosFII[0].plInicio || valorTotalFII) : valorTotalFII;
   
-  const roiDireto = valorInicialDireto > 0 ? 
-    ((valorTotalDireto - valorInicialDireto) / valorInicialDireto) * 100 : 0;
-  const roiFII = valorInicialFII > 0 ? 
-    ((valorTotalFII - valorInicialFII) / valorInicialFII) * 100 : 0;
+  const ganhoDireto = valorTotalDireto - valorInicialDireto;
+  const ganhoFII = valorTotalFII - valorInicialFII;
   
-  const vantagem = roiFII - roiDireto;
+  // Vantagem = quanto o ganho do FII é maior/menor que o ganho Direto
+  let vantagem = 0;
+  if (Math.abs(ganhoDireto) > 0.01) {
+    vantagem = ((ganhoFII - ganhoDireto) / Math.abs(ganhoDireto)) * 100;
+  }
   document.getElementById("vantagem").textContent = `${formatNumber(
     Math.abs(vantagem),
     2
@@ -1201,9 +1203,9 @@ function getTooltipHtml(type) {
     },
     vantagem: {
       title: "Vantagem Relativa",
-      expl: "Diferença de ROI (Retorno sobre Investimento) entre as opções.",
-      formula: "ROI FII - ROI Direto",
-      interp: "Positivo favorece FII, negativo favorece Direto."
+      expl: "Quanto o ganho de uma opção é maior/menor que a outra.",
+      formula: "(Ganho FII - Ganho Direto) / Ganho Direto × 100",
+      interp: "150% = FII ganhou 150% a mais. -30% = Direto ganhou 30% a mais."
     },
     diferenca: {
       title: "Diferença Absoluta",
