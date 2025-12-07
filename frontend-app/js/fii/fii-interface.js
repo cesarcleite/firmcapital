@@ -813,14 +813,21 @@ function updateInterface(
         </div>
       </div>
 
+
       <div class="charts-grid">
         <div class="chart-container full-width">
           <h3 class="section-title">
             <i class="fas fa-chart-area"></i>
             Evolução do Valor Total Acumulado
           </h3>
-          <div class="chart-wrapper tall">
-            <canvas id="chartValorAcumulado"></canvas>
+          <div class="chart-grid-split">
+            <div class="chart-wrapper-third">
+              <p class="chart-subtitle">Valores Finais</p>
+              <canvas id="chartComparativoPL"></canvas>
+            </div>
+            <div class="chart-wrapper-twothirds">
+              <canvas id="chartValorAcumulado"></canvas>
+            </div>
           </div>
         </div>
         <div class="chart-container">
@@ -1373,6 +1380,99 @@ function updateCharts() {
       },
     },
   };
+
+  // Gráfico de Barras Comparativo (PL Final)
+  const ctxComparativo = document.getElementById("chartComparativoPL");
+  if (ctxComparativo) {
+    // Calcular valores finais para comparação
+    const totalDividendosDireto = window.resultadosSimulacao?.direto?.totalDividendos || 0;
+    const totalDividendosFII = window.resultadosSimulacao?.fii?.totalDividendos || 0;
+    const plFinalDireto = window.resultadosSimulacao?.direto?.plFinal || 0;
+    const plFinalFII = window.resultadosSimulacao?.fii?.plFinal || 0;
+    
+    const valorTotalDireto = totalDividendosDireto + plFinalDireto;
+    const valorTotalFII = totalDividendosFII + plFinalFII;
+
+    charts.comparativo = new Chart(ctxComparativo, {
+      type: "bar",
+      data: {
+        labels: ["Valor Total Final"],
+        datasets: [
+          {
+            label: "Direto",
+            data: [valorTotalDireto],
+            backgroundColor: COLORS.grayMedium,
+            borderColor: COLORS.grayDark,
+            borderWidth: 1
+          },
+          {
+            label: "FII",
+            data: [valorTotalFII],
+            backgroundColor: COLORS.accentGold,
+            borderColor: COLORS.goldDark,
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: COLORS.grayDark,
+              font: { size: 10, family: 'Roboto, sans-serif' },
+              padding: 8,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(45, 45, 45, 0.95)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: COLORS.accentGold,
+            borderWidth: 1,
+            padding: 12,
+            callbacks: {
+              label: function(context) {
+                const value = context.parsed.y;
+                return context.dataset.label + ': ' + 
+                       new Intl.NumberFormat('pt-BR', {
+                         style: 'currency',
+                         currency: 'BRL'
+                       }).format(value);
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { display: false },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: COLORS.grayMedium,
+              font: { size: 9, family: 'Roboto, sans-serif' },
+              callback: function(value) {
+                return new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                  notation: 'compact',
+                  compactDisplay: 'short'
+                }).format(value);
+              }
+            },
+            grid: { color: 'rgba(197, 164, 126, 0.1)' }
+          }
+        }
+      }
+    });
+  }
 
   const ctxValor = document.getElementById("chartValorAcumulado");
   if (ctxValor) {

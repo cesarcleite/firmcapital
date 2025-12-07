@@ -683,7 +683,64 @@
 }
 
 .chart-wrapper.tall {
-  height: 350px;
+  height: 400px;
+}
+
+/* Grid split para gráfico comparativo + evolução */
+.chart-grid-split {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+.chart-wrapper-third {
+  position: relative;
+  height: 400px;
+  background: var(--beige);
+  border-radius: 8px;
+  padding: 0.75rem 0.75rem 0.5rem 0.75rem;
+  border: 1px solid var(--beige-darker);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chart-wrapper-third canvas {
+  flex: 1;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.chart-subtitle {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gray-dark);
+  margin: 0 0 0.5rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--beige-darker);
+  flex-shrink: 0;
+}
+
+.chart-wrapper-twothirds {
+  position: relative;
+  height: 400px;
+  background: var(--beige);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid var(--beige-darker);
+}
+
+.chart-subtitle {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gray-dark);
+  margin: 0 0 0.5rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--beige-darker);
 }
 
 /* ========== ABAS DE RESULTADOS ========== */
@@ -694,6 +751,7 @@
   overflow: hidden;
   border: 1px solid var(--beige-darker);
 }
+
 
 .tab-list {
   display: flex;
