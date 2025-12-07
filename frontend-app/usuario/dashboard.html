@@ -251,8 +251,7 @@
         ];
 
         const actions = [
-          { icon: "fas fa-eye", title: "Ver", onClick: "verSimulacao" },
-          { icon: "fas fa-edit", title: "Editar", onClick: "editarSimulacao" },
+          { icon: "fas fa-edit", title: "Visualizar/Editar", onClick: "abrirSimulacao" },
         ];
 
         dashboardInstance.renderTable(
@@ -288,12 +287,42 @@
         );
       }
 
-      function verSimulacao(id) {
-        window.location.href = `simulacoes.html?id=${id}`;
-      }
+      // Mapeamento de códigos de tipo de fundo para arquivos HTML
+      const TIPO_FUNDO_PAGES = {
+        "FII": "fii.html",
+        "FIP-IE": "fip-ie.html",
+        "FIP": "fip.html",
+        "FIDC": "fidc.html",
+      };
 
-      function editarSimulacao(id) {
-        window.location.href = `../simuladores/editar.html?id=${id}`;
+      // Abre a simulação na página correta do tipo de fundo
+      async function abrirSimulacao(id) {
+        try {
+          showLoading();
+          const response = await api.getSimulacao(id);
+          hideLoading();
+
+          if (response.success) {
+            const tipoFundo = response.data.tipoFundo;
+            const codigo = tipoFundo?.codigo;
+
+            // Buscar o arquivo HTML correspondente ao tipo de fundo
+            const paginaHTML = TIPO_FUNDO_PAGES[codigo];
+
+            if (paginaHTML) {
+              // Redirecionar para a página específica do tipo de fundo
+              window.location.href = `../simuladores/${paginaHTML}?id=${id}`;
+            } else {
+              showToast(
+                `Tipo de fundo "${tipoFundo?.nome || codigo}" ainda não tem página implementada`,
+                "warning"
+              );
+            }
+          }
+        } catch (error) {
+          hideLoading();
+          handleError(error);
+        }
       }
 
       function verCliente(id) {
