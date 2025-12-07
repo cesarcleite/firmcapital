@@ -306,24 +306,30 @@ class SimulacaoPDFGenerator {
   criarResumoExecutivo(doc) {
     this.adicionarTituloSecao(doc, "RESUMO EXECUTIVO", 30);
 
-    // Calcular métricas
-    let totalDivDireto = 0;
-    let totalDivFII = 0;
-
-    // Usar dividendosDistribuidos se disponível para pegar valores corrigidos (mesma lógica da tela)
-    if (typeof dividendosDistribuidos !== 'undefined' && dividendosDistribuidos.direto && dividendosDistribuidos.direto.length > 0) {
-        totalDivDireto = dividendosDistribuidos.direto.reduce((sum, d) => sum + (d.valorCorrigido !== undefined ? d.valorCorrigido : d.valor), 0);
-        totalDivFII = dividendosDistribuidos.fii.reduce((sum, d) => sum + (d.valorCorrigido !== undefined ? d.valorCorrigido : d.valor), 0);
-    } else {
-        totalDivDireto = dadosDireto.reduce((sum, d) => sum + d.dividendo, 0);
-        totalDivFII = dadosFII.reduce((sum, d) => sum + d.dividendo, 0);
+    // ✅ BUSCAR valores pré-calculados - NÃO recalcular
+    if (!window.resultadosSimulacao) {
+      console.error("window.resultadosSimulacao não encontrado! Execute o cálculo antes de gerar o PDF.");
+      return;
     }
-    const plFinalDireto = dadosDireto[dadosDireto.length - 1].plFinal;
-    const plFinalFII = dadosFII[dadosFII.length - 1].plFinal;
-    const valorTotalDireto = totalDivDireto + plFinalDireto;
-    const valorTotalFII = totalDivFII + plFinalFII;
-    const diferenca = valorTotalFII - valorTotalDireto;
-    const diferencaPct = (diferenca / valorTotalDireto) * 100;
+
+    const res = window.resultadosSimulacao;
+    
+    // Extrair valores já calculados
+    const totalDivDireto = res.direto.totalDividendos;
+    const totalDivFII = res.fii.totalDividendos;
+    const plFinalDireto = res.direto.plFinal;
+    const plFinalFII = res.fii.plFinal;
+    const valorTotalDireto = res.direto.valorTotal;
+    const valorTotalFII = res.fii.valorTotal;
+    const diferenca = res.diferenca;
+    const diferencaPct = res.diferencaPct;
+    
+    const roeMedioDireto = res.direto.roeMedio;
+    const roeMedioFII = res.fii.roeMedio;
+    const dyMedioDireto = res.direto.dyMedio;
+    const dyMedioFII = res.fii.dyMedio;
+    const margemMedioDireto = res.direto.margemMedia;
+    const margemMedioFII = res.fii.margemMedia;
 
     // Cards de destaque
     const cardWidth = (this.usableWidth - 10) / 2;
@@ -401,14 +407,24 @@ class SimulacaoPDFGenerator {
     const smallCardWidth = (this.usableWidth - 20) / 3;
     const smallCardHeight = 25;
 
-    const margemMedioDireto =
-      dadosDireto.reduce((sum, d) => sum + d.margem, 0) / dadosDireto.length;
-    const margemMedioFII =
-      dadosFII.reduce((sum, d) => sum + d.margem, 0) / dadosFII.length;
     const vantagem = diferenca > 0 ? this.siglaFundo : "Direto";
     const corVantagem =
       diferenca > 0 ? this.colors.primary : this.colors.medium;
-    const vantagemRelativa = Math.abs(diferencaPct);
+    
+    // ✅ Calcular Vantagem Relativa usando a MESMA lógica da tela (baseada no GANHO)
+    const valorInicialDireto = dadosDireto.length > 0 ? 
+      (dadosDireto[0].plInicio || valorTotalDireto) : valorTotalDireto;
+    const valorInicialFII = dadosFII.length > 0 ? 
+      (dadosFII[0].plInicio || valorTotalFII) : valorTotalFII;
+    
+    const ganhoDireto = valorTotalDireto - valorInicialDireto;
+    const ganhoFII = valorTotalFII - valorInicialFII;
+    
+    let vantagemRelativa = 0;
+    if (Math.abs(ganhoDireto) > 0.01) {
+      vantagemRelativa = ((ganhoFII - ganhoDireto) / Math.abs(ganhoDireto)) * 100;
+    }
+
 
     // Card 1: Vantagem
     doc.setFillColor(
@@ -563,15 +579,7 @@ class SimulacaoPDFGenerator {
     yPos += 35;
 
     // Tabela comparativa detalhada
-    const roeMedioDireto =
-      dadosDireto.reduce((sum, d) => sum + d.roe, 0) / dadosDireto.length;
-    const roeMedioFII =
-      dadosFII.reduce((sum, d) => sum + d.roe, 0) / dadosFII.length;
-    const dyMedioDireto =
-      dadosDireto.reduce((sum, d) => sum + d.dy, 0) / dadosDireto.length;
-    const dyMedioFII =
-      dadosFII.reduce((sum, d) => sum + d.dy, 0) / dadosFII.length;
-
+    // ✅ Usar valores já calculados de window.resultadosSimulacao
     const investimentoInicial =
       parseCurrencyInput(document.getElementById("valorImovel")) +
       parseCurrencyInput(document.getElementById("valorCaixa"));
@@ -613,6 +621,7 @@ class SimulacaoPDFGenerator {
         this.formatPct(dyMedioFII),
         this.formatPct(dyMedioFII - dyMedioDireto),
       ],
+
     ];
 
     doc.autoTable({
