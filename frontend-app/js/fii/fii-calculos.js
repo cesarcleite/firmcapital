@@ -321,10 +321,10 @@ function performCalculation() {
       const ganhoLiquido = receitaVenda - irVenda + aluguelEfetivo - custosOperacionais;
       margem = receitaTotal > 0 ? (ganhoLiquido / receitaTotal) * 100 : 0;
     } else {
-      // Cálculo normal para meses sem venda
-      const margemBase = distribDireto * aluguelBruto;
-      margem = margemBase > 0 ? (dividendo / margemBase) * 100 : 0;
+      // Margem = Dividendo Líquido / Receita Bruta (quanto da receita vira dividendo)
+      margem = aluguelBruto > 0 ? (dividendo / aluguelBruto) * 100 : 0;
     }
+
 
     if (!habilitarVenda || m !== mesVenda) {
       valorCaixaAtualDireto += reinvestimento;
@@ -500,10 +500,10 @@ function performCalculation() {
       const ganhoLiquido = receitaVenda - irVenda + aluguelEfetivo - totalCustosFII;
       margem = receitaTotal > 0 ? (ganhoLiquido / receitaTotal) * 100 : 0;
     } else {
-      // Cálculo normal para meses sem venda
-      const margemBase = distribFII * aluguelBruto;
-      margem = margemBase > 0 ? (dividendo / margemBase) * 100 : 0;
+      // Margem = Dividendo Líquido / Receita Bruta (quanto da receita vira dividendo)
+      margem = aluguelBruto > 0 ? (dividendo / aluguelBruto) * 100 : 0;
     }
+
 
     if (!habilitarVenda || m !== mesVenda) {
       valorCaixaAtualFII += reinvestimento;

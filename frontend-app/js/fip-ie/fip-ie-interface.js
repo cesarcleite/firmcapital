@@ -1629,63 +1629,77 @@ function updateCharts() {
   const ctxCustos = document.getElementById("chartCustosComposicao");
   if (ctxCustos && custosFII.length > 0) {
     const primeiros60 = custosFII.slice(0, Math.min(60, custosFII.length));
+    
+    // Definir todos os datasets disponíveis (SEM ITBI no FIP-IE)
+    const allDatasetsFIPIE = [
+      {
+        id: "admin",
+        label: "Taxa Admin",
+        data: primeiros60.map((c) => c.admin),
+        backgroundColor: `rgba(197, 164, 126, 0.8)`,
+      },
+      {
+        id: "gestao",
+        label: "Taxa Gestão",
+        data: primeiros60.map((c) => c.gestao),
+        backgroundColor: `rgba(182, 149, 104, 0.8)`,
+      },
+      {
+        id: "custodia",
+        label: "Taxa Custódia",
+        data: primeiros60.map((c) => c.custodia),
+        backgroundColor: `rgba(212, 184, 150, 0.8)`,
+      },
+      {
+        id: "consultoria",
+        label: "Taxa Consultoria",
+        data: primeiros60.map((c) => c.consultoria),
+        backgroundColor: `rgba(74, 74, 74, 0.8)`,
+      },
+      {
+        id: "cvmAnual",
+        label: "CVM Anual",
+        data: primeiros60.map((c) => c.cvmAnual || 0),
+        backgroundColor: `rgba(220, 38, 38, 0.8)`,
+      },
+      {
+        id: "cvmRegistro",
+        label: "CVM Registro",
+        data: primeiros60.map((c) => c.cvmRegistro || 0),
+        backgroundColor: `rgba(185, 28, 28, 0.8)`,
+      },
+      {
+        id: "anbimaRegistro",
+        label: "ANBIMA Registro",
+        data: primeiros60.map((c) => c.anbimaRegistro || 0),
+        backgroundColor: `rgba(153, 27, 27, 0.8)`,
+      },
+      {
+        id: "distribuicao",
+        label: "Taxa Distribuição",
+        data: primeiros60.map((c) => c.distribuicao || 0),
+        backgroundColor: `rgba(59, 130, 246, 0.8)`,
+      },
+      {
+        id: "outros",
+        label: "Outros Custos",
+        data: primeiros60.map((c) => c.outros),
+        backgroundColor: `rgba(107, 107, 107, 0.8)`,
+      },
+    ];
+    
     charts.custos = new Chart(ctxCustos, {
       type: "bar",
       data: {
         labels: primeiros60.map((c) => `Mês ${c.mes}`),
-        datasets: [
-          {
-            label: "Taxa Admin",
-            data: primeiros60.map((c) => c.admin),
-            backgroundColor: `rgba(197, 164, 126, 0.8)`,
-          },
-          {
-            label: "Taxa Gestão",
-            data: primeiros60.map((c) => c.gestao),
-            backgroundColor: `rgba(182, 149, 104, 0.8)`,
-          },
-          {
-            label: "Taxa Custódia",
-            data: primeiros60.map((c) => c.custodia),
-            backgroundColor: `rgba(212, 184, 150, 0.8)`,
-          },
-          {
-            label: "Taxa Consultoria",
-            data: primeiros60.map((c) => c.consultoria),
-            backgroundColor: `rgba(74, 74, 74, 0.8)`,
-          },
-          {
-            label: "CVM Anual",
-            data: primeiros60.map((c) => c.cvmAnual || 0),
-            backgroundColor: `rgba(220, 38, 38, 0.8)`,
-          },
-          {
-            label: "CVM Registro",
-            data: primeiros60.map((c) => c.cvmRegistro || 0),
-            backgroundColor: `rgba(185, 28, 28, 0.8)`,
-          },
-          {
-            label: "ANBIMA Registro",
-            data: primeiros60.map((c) => c.anbimaRegistro || 0),
-            backgroundColor: `rgba(153, 27, 27, 0.8)`,
-          },
-          {
-            label: "Taxa Distribuição",
-            data: primeiros60.map((c) => c.distribuicao || 0),
-            backgroundColor: `rgba(59, 130, 246, 0.8)`,
-          },
-          {
-            label: "Outros Custos",
-            data: primeiros60.map((c) => c.outros),
-            backgroundColor: `rgba(107, 107, 107, 0.8)`,
-          },
-        ],
+        datasets: allDatasetsFIPIE,
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
+            display: true,
             position: "top",
             labels: {
               usePointStyle: true,
@@ -1695,7 +1709,29 @@ function updateCharts() {
                 size: 11,
                 family: "Roboto, sans-serif",
               },
+              generateLabels: function(chart) {
+                const datasets = chart.data.datasets;
+                return datasets.map((dataset, i) => ({
+                  text: dataset.label,
+                  fillStyle: dataset.backgroundColor,
+                  hidden: !chart.isDatasetVisible(i),
+                  lineCap: 'round',
+                  lineDash: [],
+                  lineDashOffset: 0,
+                  lineJoin: 'round',
+                  lineWidth: 2,
+                  strokeStyle: dataset.backgroundColor,
+                  pointStyle: 'circle',
+                  datasetIndex: i
+                }));
+              }
             },
+            onClick: function(e, legendItem, legend) {
+              const index = legendItem.datasetIndex;
+              const chart = legend.chart;
+              chart.setDatasetVisibility(index, !chart.isDatasetVisible(index));
+              chart.update();
+            }
           },
           tooltip: {
             mode: "index",
