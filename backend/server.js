@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
-const rateLimit = require("express-rate-limit");
+// const rateLimit = require("express-rate-limit"); // DESABILITADO - rate limiting removido
 const morgan = require("morgan");
 const path = require("path");
 
@@ -85,7 +85,10 @@ if (config.isDev) {
   app.use(morgan("dev"));
 }
 
-// Rate limiting
+// Rate limiting - DESABILITADO conforme solicitação do usuário
+// O rate limiting estava bloqueando requisições com "Muitas requisições deste IP"
+// Removido para permitir requisições ilimitadas
+/*
 const limiter = rateLimit({
   windowMs: config.rateLimitWindowMs,
   max: config.rateLimitMaxRequests,
@@ -101,6 +104,8 @@ const limiter = rateLimit({
 });
 
 app.use("/api/", limiter);
+*/
+
 
 // Rota de health check
 app.get("/health", (req, res) => {
