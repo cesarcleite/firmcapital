@@ -658,7 +658,128 @@ function setupDependentFields() {
   });
 
   atualizarInvestimentoTotal();
+
+  // ========== CAMPOS DE DEBÊNTURES ==========
+  const habilitarDebentures = document.getElementById("habilitarDebentures");
+  const valorEmissao = document.getElementById("valorEmissao");
+  const indexadorDebentures = document.getElementById("indexadorDebentures");
+  const prazoDebentures = document.getElementById("prazoDebentures");
+  const carenciaDebentures = document.getElementById("carenciaDebentures");
+  const sistemaAmortizacao = document.getElementById("sistemaAmortizacao");
+  const periodicidadeDebentures = document.getElementById("periodicidadeDebentures");
+  const mesEmissao = document.getElementById("mesEmissao");
+  const taxaJurosDebentures = document.getElementById("taxaJurosDebentures");
+  const custoDebenturesCVM = document.getElementById("custoDebenturesCVM");
+  const custoDebenturesCoordenador = document.getElementById("custoDebenturesCoordenador");
+  const custoDebenturesAgente = document.getElementById("custoDebenturesAgente");
+  const custoDebenturesJuridica = document.getElementById("custoDebenturesJuridica");
+  const custoDebenturesOutros = document.getElementById("custoDebenturesOutros");
+
+  // Inicializar valor da emissão como 50% do valor do ativo
+  const imovelAtual = parseCurrencyInput(valorImovel);
+  if (imovelAtual > 0) {
+    const emissaoPadrao = imovelAtual * 0.5;
+    valorEmissao.value = emissaoPadrao.toLocaleString("pt-BR", { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    });
+  }
+
+  // Sincronizar valor emissão ao mudar valor do ativo (se não editado manualmente)
+  let valorEmissaoManuallyEdited = false;
+
+  valorEmissao.addEventListener("input", function() {
+    valorEmissaoManuallyEdited = true;
+  });
+
+  valorImovel.addEventListener("input", function() {
+    if (!valorEmissaoManuallyEdited && !habilitarDebentures.checked) {
+      const novoValorImovel = parseCurrencyInput(this);
+      const novaEmissao = novoValorImovel * 0.5;
+      valorEmissao.value = novaEmissao.toLocaleString("pt-BR", { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      });
+    }
+  });
+
+  // Habilitar/desabilitar campos de debêntures
+  habilitarDebentures.addEventListener("change", function() {
+    const enabled = this.checked;
+    
+    valorEmissao.disabled = !enabled;
+    indexadorDebentures.disabled = !enabled;
+    prazoDebentures.disabled = !enabled;
+    carenciaDebentures.disabled = !enabled;
+    sistemaAmortizacao.disabled = !enabled;
+    periodicidadeDebentures.disabled = !enabled;
+    mesEmissao.disabled = !enabled;
+    taxaJurosDebentures.disabled = !enabled;
+    custoDebenturesCVM.disabled = !enabled;
+    custoDebenturesCoordenador.disabled = !enabled;
+    custoDebenturesAgente.disabled = !enabled;
+    custoDebenturesJuridica.disabled = !enabled;
+    custoDebenturesOutros.disabled = !enabled;
+
+    if (enabled) {
+      // Sincronizar mês de emissão com duração
+      mesEmissao.max = duracao.value;
+    }
+  });
+
+  // Atualizar limite do mês de emissão quando duração mudar
+  duracao.addEventListener("change", function() {
+    if (mesEmissao) {
+      mesEmissao.max = this.value;
+      if (parseInt(mesEmissao.value) > parseInt(this.value)) {
+        mesEmissao.value = Math.min(parseInt(this.value), 1);
+      }
+    }
+  });
+
+  // ========== SINCRONIZAÇÃO CDI ==========
+  const cdiAnual = document.getElementById("cdiAnual");
+  const correcaoCaixaAnual = document.getElementById("correcaoCaixaAnual");
+  const waccAnual = document.getElementById("waccAnual");
+
+  // Sincronizar valores iniciais
+  if (cdiAnual && correcaoCaixaAnual && waccAnual) {
+    const cdiValue = cdiAnual.value;
+    if (!correcaoCaixaAnual.value || correcaoCaixaAnual.value === "10,50") {
+      correcaoCaixaAnual.value = cdiValue;
+    }
+    if (!waccAnual.value || waccAnual.value === "10,00") {
+      waccAnual.value = cdiValue;
+    }
+  }
+
+  // ========== LÓGICA DE INDEXADOR DE DEBÊNTURES ==========
+  // indexadorDebentures já declarado acima
+  const labelTaxaDebentures = document.getElementById("labelTaxaDebentures");
+
+  if (indexadorDebentures && labelTaxaDebentures) {
+    indexadorDebentures.addEventListener("change", function() {
+      const indexador = this.value;
+      switch(indexador) {
+        case "ipca":
+          labelTaxaDebentures.textContent = "Taxa sobre IPCA (%)";
+          break;
+        case "prefixado":
+          labelTaxaDebentures.textContent = "Taxa Pré-fixada (% a.a.)";
+          break;
+        case "cdi":
+          labelTaxaDebentures.textContent = "Percentual do CDI (%)";
+          break;
+        case "igpm":
+          labelTaxaDebentures.textContent = "Taxa sobre IGP-M (%)";
+          break;
+        default:
+          labelTaxaDebentures.textContent = "Taxa sobre Indexador (%)";
+      }
+    });
+  }
 }
+
 
 // ========== NAVEGAÇÃO ENTRE ABAS ==========
 function showTab(tabName) {
@@ -873,6 +994,38 @@ function updateInterface(
           <h3>Vantagem Relativa</h3>
           <div class="metric-value" id="vantagem">0%</div>
           <div class="metric-comparison" id="vantagemText">Equivalente</div>
+        </div>
+        <div class="metric-card" id="economiaDebenturesCard" style="display: none;">
+          <h3>Economia Tributária <i class="fas fa-certificate" style="color: var(--accent-gold); font-size: 0.8em;"></i></h3>
+          <div class="metric-value" id="economiaDebentures">R$ 0,00</div>
+          <div class="metric-comparison" id="economiaDebenturesText">Debêntures Incentivadas</div>
+        </div>
+      </div>
+
+      \u003c!-- Card Especial de Debêntures (Full Width) --\u003e
+      <div id="debenturesFullCard" class="summary-card fii" style="display: none; margin-top: 1.5rem; margin-bottom: 2rem; grid-column: 1 / -1;">
+        <h3>Debêntures Incentivadas (Lei 12.431/2011)</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1rem;">
+          <div style="text-align: center;">
+            <div style="font-size: 0.85rem; color: var(--gray-medium); margin-bottom: 0.5rem;">Valor da Emissão</div>
+            <div id="debValorEmissao" class="value">R$ 0,00</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 0.85rem; color: var(--gray-medium); margin-bottom: 0.5rem;">Juros Totais (Teóricos)</div>
+            <div id="debJurosTotais" class="value">R$ 0,00</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 0.85rem; color: var(--gray-dark); margin-bottom: 0.5rem; font-weight: 600;">Economia Fiscal Total</div>
+            <div id="debEconomiaFiscal" class="value" style="color: var(--success);">R$ 0,00</div>
+            <div id="debPercentual" class="subtitle">(0% dos juros)</div>
+          </div>
+        </div>
+        
+        <div class="subtitle" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: center; line-height: 1.5;">
+          <strong>Benefício Fiscal:</strong> A empresa deduz os juros pagos do IR/CSLL (economia de 34%), 
+          e o FIP-IE recebe os juros isentos de IR (economia de mais 34%). 
+          <strong>Resultado:</strong> <span id="debExplicacaoPercentual">68%</span> dos juros permanecem no ecossistema.
         </div>
       </div>
 
@@ -1189,6 +1342,37 @@ function updateInterface(
     vantagemElement.className = "metric-value negative";
     vantagemText.textContent = "Direto Vantajoso";
     vantagemText.className = "metric-comparison negative";
+  }
+  
+  // Exibir card full-width de debêntures
+  const debenturesFullCard = document.getElementById("debenturesFullCard");
+  
+  if (window.resultadosSimulacao && window.resultadosSimulacao.debentures) {
+    const debData = window.resultadosSimulacao.debentures;
+    const totais = debData.totais;
+    
+    if (debenturesFullCard) {
+      debenturesFullCard.style.display = "block";
+      
+      // Popular valores
+      document.getElementById("debValorEmissao").textContent = formatCurrency(totais.valorEmissao);
+      document.getElementById("debJurosTotais").textContent = formatCurrency(totais.jurosTeóricos);
+      document.getElementById("debEconomiaFiscal").textContent = formatCurrency(totais.economiaFiscal);
+      document.getElementById("debPercentual").textContent = `(${totais.percentualEconomia.toFixed(1)}% dos juros)`;
+      document.getElementById("debExplicacaoPercentual").textContent = totais.percentualEconomia.toFixed(0) +  "%";
+      
+      console.log("Card Debêntures populado - Economia Fiscal:", totais.economiaFiscal);
+    }
+    
+    // Esconder card pequeno (não usado)
+    const economiaDebenturesCard = document.getElementById("economiaDebenturesCard");
+    if (economiaDebenturesCard) {
+      economiaDebenturesCard.style.display = "none";
+    }
+  } else {
+    if (debenturesFullCard) {
+      debenturesFullCard.style.display = "none";
+    }
   }
   
   // Adicionar tooltips se não existirem

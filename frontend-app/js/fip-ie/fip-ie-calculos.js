@@ -100,6 +100,162 @@ function calcularTaxaOferta(valorOferta) {
   return totalTaxaOferta;
 }
 
+// ========== CÁLCULO DE DEBÊNTURES ==========
+
+// Calcular cronograma de debêntures - SAC (Sistema de Amortização Constante)
+function calcularSAC(valorEmissao, taxaMensal, numParcelas, carenciaMeses) {
+  const amortizacaoMensal = valorEmissao / numParcelas;
+  const cronograma = [];
+  let saldoDevedor = valorEmissao;
+
+  for (let i = 1; i <= numParcelas; i++) {
+    const juros = saldoDevedor * taxaMensal;
+    const amortizacao = i > carenciaMeses ? amortizacaoMensal : 0;
+    const parcela = juros + amortizacao;
+
+    cronograma.push({
+      periodo: i,
+      juros: juros,
+      amortizacao: amortizacao,
+      parcela: parcela,
+      saldoDevedor: saldoDevedor
+    });
+
+    saldoDevedor -= amortizacao;
+  }
+
+  return cronograma;
+}
+
+// Calcular cronograma de debêntures - PRICE (Tabela Price - Parcelas Fixas)
+function calcularPrice(valorEmissao, taxaMensal, numParcelas, carenciaMeses) {
+  const cronograma = [];
+  let saldoDevedor = valorEmissao;
+
+  // Calcular parcela fixa (após carência)
+  const parcelasAmortizacao = numParcelas - carenciaMeses;
+  const parcelaFixa = parcelasAmortizacao > 0 
+    ? valorEmissao * (taxaMensal * Math.pow(1 + taxaMensal, parcelasAmortizacao)) / 
+      (Math.pow(1 + taxaMensal, parcelasAmortizacao) - 1)
+    : 0;
+
+  for (let i = 1; i <= numParcelas; i++) {
+    const juros = saldoDevedor * taxaMensal;
+    const amortizacao = i > carenciaMeses ? (parcelaFixa - juros) : 0;
+    const parcela = juros + amortizacao;
+
+    cronograma.push({
+      periodo: i,
+      juros: juros,
+      amortizacao: amortizacao,
+      parcela: parcela,
+      saldoDevedor: saldoDevedor
+    });
+
+    saldoDevedor -= amortizacao;
+  }
+
+  return cronograma;
+}
+
+// Calcular cronograma de debêntures - BULLET (Pagamento único no vencimento)
+function calcularBullet(valorEmissao, taxaMensal, numParcelas, carenciaMeses) {
+  const cronograma = [];
+
+  for (let i = 1; i <= numParcelas; i++) {
+    const juros = valorEmissao * taxaMensal;
+    const amortizacao = (i === numParcelas) ? valorEmissao : 0;
+    const parcela = juros + amortizacao;
+
+    cronograma.push({
+      periodo: i,
+      juros: juros,
+      amortizacao: amortizacao,
+      parcela: parcela,
+      saldoDevedor: valorEmissao - amortizacao
+    });
+  }
+
+  return cronograma;
+}
+
+// Calcular custos de emissão de debêntures
+function calcularCustosEmissaoDebentures(config) {
+  const valorEmissao = config.valorEmissao;
+  
+  const taxaCVM = valorEmissao * (config.custoDebenturesCVM / 100);
+  const coordenador = valorEmissao * (config.custoDebenturesCoordenador / 100);
+  const agente = config.custoDebenturesAgente;
+  const juridica = config.custoDebenturesJuridica;
+  const outros = config.custoDebenturesOutros;
+  
+  const total = taxaCVM + coordenador + agente + juridica + outros;
+  
+  return {
+    taxaCVM,
+    coordenador,
+    agente,
+    juridica,
+    outros,
+    total
+  };
+}
+
+// Calcular parcela de debênture para um mês específico
+function calcularParcelaDebentures(mes, config, cronograma) {
+  if (!config.habilitarDebentures || !cronograma) {
+    return null;
+  }
+
+  const mesEmissao = config.mesEmissao;
+  const periodicidade = config.periodicidadeDebentures;
+
+  // Mês de emissão: retorna entrada de recursos e custos
+  if (mes === mesEmissao) {
+    const custos = calcularCustosEmissaoDebentures(config);
+    const recursosLiquidos = config.valorEmissao - custos.total;
+    
+    return {
+      tipo: 'emissao',
+      entrada: recursosLiquidos,
+      custos: custos
+    };
+  }
+
+  // Verificar se é mês de pagamento
+  const mesesDesdeEmissao = mes - mesEmissao;
+  
+  if (mesesDesdeEmissao > 0 && mesesDesdeEmissao % periodicidade === 0) {
+    const indiceParcela = Math.floor(mesesDesdeEmissao / periodicidade);
+    
+    if (indiceParcela > 0 && indiceParcela <= cronograma.length) {
+      const parcela = cronograma[indiceParcela - 1];
+      
+      return {
+        tipo: 'pagamento',
+        juros: parcela.juros,
+        amortizacao: parcela.amortizacao,
+        parcela: parcela.parcela,
+        saldoDevedor: parcela.saldoDevedor
+      };
+    }
+  }
+
+  return null;
+}
+
+// Calcular ICSD (Índice de Cobertura do Serviço da Dívida)
+function calcularICSD(ebitda, servicoDivida) {
+  if (servicoDivida === 0) return Infinity;
+  return ebitda / servicoDivida;
+}
+
+// Calcular Alavancagem Financeira (D/E Ratio)
+function calcularAlavancagem(divida, patrimonioLiquido) {
+  if (patrimonioLiquido === 0) return Infinity;
+  return divida / patrimonioLiquido;
+}
+
 // ========== CÁLCULO PRINCIPAL ==========
 function performCalculation() {
   console.log("Iniciando cálculo...");
@@ -204,6 +360,69 @@ function performCalculation() {
     parseFloat(document.getElementById("taxaInadimplencia").value) / 100;
   const custosManutencao =
     parseFloat(document.getElementById("custosManutencao").value) / 100;
+
+  // Debêntures Incentivadas
+  const habilitarDebentures = document.getElementById("habilitarDebentures").checked;
+  let configDebentures = null;
+  let cronogramaDebentures = null;
+
+  if (habilitarDebentures) {
+    const valorEmissao = parseCurrencyInput(document.getElementById("valorEmissao"));
+    const prazoAnos = parseInt(document.getElementById("prazoDebentures").value);
+    const carenciaAnos = parseInt(document.getElementById("carenciaDebentures").value);
+    const sistema = document.getElementById("sistemaAmortizacao").value;
+    const periodicidade = parseInt(document.getElementById("periodicidadeDebentures").value);
+    const mesEmissao = parseInt(document.getElementById("mesEmissao").value);
+    const taxaJurosAnual = parseFloat(document.getElementById("taxaJurosDebentures").value) / 100;
+    
+    const custoDebenturesCVM = parseFloat(document.getElementById("custoDebenturesCVM").value) / 100;
+    const custoDebenturesCoordenador = parseFloat(document.getElementById("custoDebenturesCoordenador").value) / 100;
+    const custoDebenturesAgente = parseCurrencyInput(document.getElementById("custoDebenturesAgente"));
+    const custoDebenturesJuridica = parseCurrencyInput(document.getElementById("custoDebenturesJuridica"));
+    const custoDebenturesOutros = parseCurrencyInput(document.getElementById("custoDebenturesOutros"));
+
+    // Converter taxa anual para periodicidade escolhida
+    const taxaPeriodo = Math.pow(1 + taxaJurosAnual, periodicidade / 12) - 1;
+    const numParcelas = Math.floor((prazoAnos * 12) / periodicidade);
+    const carenciaParcelas = Math.floor((carenciaAnos * 12) / periodicidade);
+
+    configDebentures = {
+      habilitarDebentures: true,
+      valorEmissao,
+      prazoAnos,
+      carenciaAnos,
+      sistema,
+      periodicidadeDebentures: periodicidade,
+      mesEmissao,
+      taxaJurosAnual,
+      taxaPeriodo,
+      numParcelas,
+      carenciaParcelas,
+      custoDebenturesCVM,
+      custoDebenturesCoordenador,
+      custoDebenturesAgente,
+      custoDebenturesJuridica,
+      custoDebenturesOutros
+    };
+
+    // Gerar cronograma baseado no sistema escolhido
+    switch (sistema) {
+      case 'sac':
+        cronogramaDebentures = calcularSAC(valorEmissao, taxaPeriodo, numParcelas, carenciaParcelas);
+        break;
+      case 'price':
+        cronogramaDebentures = calcularPrice(valorEmissao, taxaPeriodo, numParcelas, carenciaParcelas);
+        break;
+      case 'bullet':
+        cronogramaDebentures = calcularBullet(valorEmissao, taxaPeriodo, numParcelas, carenciaParcelas);
+        break;
+      default:
+        cronogramaDebentures = calcularSAC(valorEmissao, taxaPeriodo, numParcelas, carenciaParcelas);
+    }
+
+    console.log("Debêntures configuradas:", configDebentures);
+    console.log("Cronograma gerado:", cronogramaDebentures);
+  }
 
   if (
     investimentoInicial <= 0 ||
@@ -402,9 +621,6 @@ function performCalculation() {
     );
     const custoITBI = m === 1 ? investimentoInicial * itbiFII : 0;
 
-    const baseIRAluguel = Math.max(0, aluguelEfetivo);
-    const irAluguel = baseIRAluguel * irAluguelFII;
-
     // Taxas regulatórias
     let taxaCVMAnualMes = 0;
     let taxaCVMRegistroMes = 0;
@@ -439,6 +655,41 @@ function performCalculation() {
       valorImovelAtualFII = 0;
     }
 
+    // ========== DEBÊNTURES: CONSOLIDADO ==========
+    // Visão consolidada: FIP-IE = Empresa
+    // Empresa paga parcela → FIP-IE recebe parcela = ZERO no consolidado
+    // ÚNICA diferença: juros deduzem da base de IR
+    
+    let jurosDebentures = 0;           // Juros do mês (dedutíveis do IR)
+    let custosEmissaoMes = 0;          // Custos de emissão
+
+    if (habilitarDebentures) {
+      const parcelaDebMes = calcularParcelaDebentures(m, configDebentures, cronogramaDebentures);
+      
+      if (parcelaDebMes) {
+        if (parcelaDebMes.tipo === 'emissao') {
+          // Mês de emissão: apenas custos afetam o caixa
+          custosEmissaoMes = parcelaDebMes.custos.total;
+          valorCaixaAtualFII -= custosEmissaoMes;
+          
+          console.log(`Mês ${m}: Emissão debêntures - Custos: R$ ${custosEmissaoMes.toFixed(0)}`);
+          
+        } else if (parcelaDebMes.tipo === 'pagamento') {
+          // Mês de pagamento:
+          jurosDebentures = parcelaDebMes.juros;  // Dedutível do IR
+          
+          // NÃO há movimento de caixa! Empresa paga = FIP-IE recebe (consolidado = zero)
+          // Benefício = economia de IR pela dedução dos juros
+          
+          console.log(`Mês ${m}: Juros dedutíveis R$ ${jurosDebentures.toFixed(0)} - Economia IR: R$ ${(jurosDebentures * 0.34).toFixed(0)}`);
+        }
+      }
+    }
+
+    // Base de IR: lucro MENOS juros dedutíveis
+    const baseIRAluguel = Math.max(0, aluguelEfetivo - jurosDebentures);
+    const irAluguel = baseIRAluguel * irAluguelFII;
+
     const totalCustosFII =
       custosAdmin +
       custosGestao +
@@ -446,12 +697,14 @@ function performCalculation() {
       custosConsultoria +
       outrosCustos +
       custoITBI +
-      irAluguel +
+      irAluguel + // IR apenas sobre aluguel (juros são isentos!)
       taxaCVMAnualMes +
       taxaCVMRegistroMes +
       taxaANBIMARegistroMes +
-      taxaDistribuicaoMes;
+      taxaDistribuicaoMes +
+      custosEmissaoMes; // Custos de emissão (apenas mês 1)
 
+    // Lucro = Receita (aluguel) - Custos
     const lucroOperacional = aluguelEfetivo - totalCustosFII;
 
     let irDividendo = 0;
@@ -526,7 +779,7 @@ function performCalculation() {
       custosCustodia,
       custosConsultoria,
       custoITBI,
-      irAluguel,
+      irAluguel: irAluguel, // IR sobre aluguel apenas
       outrosCustosMes: outrosCustos,
       taxaCVMAnualMes,
       taxaCVMRegistroMes,
@@ -543,6 +796,9 @@ function performCalculation() {
       dy,
       margem,
       dividendoAcumulado: totalDividendosFII,
+      // Debêntures
+      jurosDebentures: jurosDebentures,
+      custosEmissao: custosEmissaoMes
     });
 
     custosFII.push({
@@ -559,7 +815,7 @@ function performCalculation() {
       anbimaRegistro: taxaANBIMARegistroMes,
       distribuicao: taxaDistribuicaoMes,
       total: totalCustosFII,
-      aluguel: aluguelBruto,
+      aluguel: aluguelBruto
     });
   }
 
@@ -643,6 +899,28 @@ function performCalculation() {
     ? (Math.pow(1 + tirFIIMensal, 12) - 1) * 100
     : 0;
 
+  // Calcular totais de debêntures
+  let debenturesData = null;
+  if (habilitarDebentures) {
+    const totalJuros = detalheFII.reduce((sum, d) => sum + (d.jurosDebentures || 0), 0);
+    const totalCustosEmissao = detalheFII.reduce((sum, d) => sum + (d.custosEmissao || 0), 0);
+
+    // Benefício = economia de IR por deduzir os juros
+    const beneficioFiscal = totalJuros * irAluguelFII; // 34% dos juros
+
+    debenturesData = {
+      config: configDebentures,
+      cronograma: cronogramaDebentures,
+      totais: {
+        valorEmissao: configDebentures.valorEmissao,
+        custosEmissao: totalCustosEmissao,
+        jurosTeóricos: totalJuros,
+        economiaFiscal: beneficioFiscal,
+        percentualEconomia: totalJuros > 0 ? (beneficioFiscal / totalJuros) * 100 : 0
+      }
+    };
+  }
+
   // Armazenar resultados consolidados para o PDF
   window.resultadosSimulacao = {
     direto: {
@@ -664,7 +942,8 @@ function performCalculation() {
       tir: tirFIIAnual
     },
     diferenca: valorTotalFII - valorTotalDireto,
-    diferencaPct: ((valorTotalFII - valorTotalDireto) / valorTotalDireto) * 100
+    diferencaPct: ((valorTotalFII - valorTotalDireto) / valorTotalDireto) * 100,
+    debentures: debenturesData
   };
 
   updateInterface(
