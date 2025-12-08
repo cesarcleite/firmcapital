@@ -610,6 +610,87 @@ function setupDependentFields() {
   });
 
   atualizarInvestimentoTotal();
+  
+  // ========== CRI (Certificados de Recebíveis Imobiliários) ==========
+  const habilitarCRI = document.getElementById("habilitarCRI");
+  const valorEmissaoCRI = document.getElementById("valorEmissaoCRI");
+  const indexadorCRI = document.getElementById("indexadorCRI");
+  const taxaJurosCRI = document.getElementById("taxaJurosCRI");
+  const labelTaxaCRI = document.getElementById("labelTaxaCRI");
+  const prazoCRI = document.getElementById("prazoCRI");
+  const carenciaCRI = document.getElementById("carenciaCRI");
+  const sistemaAmortizacaoCRI = document.getElementById("sistemaAmortizacaoCRI");
+  const periodicidadeCRI = document.getElementById("periodicidadeCRI");
+  const mesEmissaoCRI = document.getElementById("mesEmissaoCRI");
+  const custoCRI_CVM = document.getElementById("custoCRI_CVM");
+  const custoCRI_Coordenador = document.getElementById("custoCRI_Coordenador");
+  const custoCRI_Agente = document.getElementById("custoCRI_Agente");
+  const custoCRI_Juridica = document.getElementById("custoCRI_Juridica");
+  const custoCRI_Outros = document.getElementById("custoCRI_Outros");
+  
+  if (habilitarCRI) {
+    habilitarCRI.addEventListener("change", function() {
+      const enabled = this.checked;
+      
+      // Habilitar/desabilitar todos os campos
+      valorEmissaoCRI.disabled = !enabled;
+      indexadorCRI.disabled = !enabled;
+      taxaJurosCRI.disabled = !enabled;
+      prazoCRI.disabled = !enabled;
+      carenciaCRI.disabled = !enabled;
+      sistemaAmortizacaoCRI.disabled = !enabled;
+      periodicidadeCRI.disabled = !enabled;
+      mesEmissaoCRI.disabled = !enabled;
+      custoCRI_CVM.disabled = !enabled;
+      custoCRI_Coordenador.disabled = !enabled;
+      custoCRI_Agente.disabled = !enabled;
+      custoCRI_Juridica.disabled = !enabled;
+      custoCRI_Outros.disabled = !enabled;
+      
+      console.log("CRI " + (enabled ? "habilitado" : "desabilitado"));
+    });
+  }
+  
+  // Listener para mudança de indexador CRI
+  if (indexadorCRI && labelTaxaCRI) {
+    indexadorCRI.addEventListener("change", function() {
+      const indexador = this.value;
+      switch(indexador) {
+        case "ipca":
+          labelTaxaCRI.textContent = "Taxa sobre IPCA (%)";
+          break;
+        case "prefixado":
+          labelTaxaCRI.textContent = "Taxa Pré-fixada (% a.a.)";
+          break;
+        case "cdi":
+          labelTaxaCRI.textContent = "Percentual do CDI (%)";
+          break;
+        case "igpm":
+          labelTaxaCRI.textContent = "Taxa sobre IGP-M (%)";
+          break;
+      }
+    });
+  }
+  
+  // Sincronização de CDI
+  const cdiAnual = document.getElementById("cdiAnual");
+  const correcaoCaixaAnual = document.getElementById("correcaoCaixaAnual");
+  const waccAnual = document.getElementById("waccAnual");
+  
+  if (cdiAnual && correcaoCaixaAnual && waccAnual) {
+    // Sincronizar valores iniciais se não foram alterados
+    const cdiValue = parseFloat(cdiAnual.value) || 15.0;
+    const correcaoValue = parseFloat(correcaoCaixaAnual.value) || 10.5;
+    const waccValue = parseFloat(waccAnual.value) || 10.0;
+    
+    // Se valores ainda estão nos padrões, atualiza com CDI
+    if (correcaoValue === 10.5) {
+      correcaoCaixaAnual.value = cdiValue.toFixed(2);
+    }
+    if (waccValue === 10.0) {
+      waccAnual.value = cdiValue.toFixed(2);
+    }
+  }
 }
 
 // ========== NAVEGAÇÃO ENTRE ABAS ==========
