@@ -100,6 +100,150 @@ function calcularTaxaOferta(valorOferta) {
   return totalTaxaOferta;
 }
 
+// ========== CÁLCULO DE CRI (Certificados de Recebíveis Imobiliários) ==========
+
+// Calcular cronograma de CRI - SAC (Sistema de Amortização Constante)
+function calcularSAC_CRI(valorEmissao, taxaMensal, numParcelas, carenciaMeses) {
+  const amortizacaoMensal = valorEmissao / numParcelas;
+  const cronograma = [];
+  let saldoDevedor = valorEmissao;
+
+  for (let i = 1; i <= numParcelas; i++) {
+    const juros = saldoDevedor * taxaMensal;
+    const amortizacao = i > carenciaMeses ? amortizacaoMensal : 0;
+    const parcela = juros + amortizacao;
+
+    cronograma.push({
+      periodo: i,
+      juros: juros,
+      amortizacao: amortizacao,
+      parcela: parcela,
+      saldoDevedor: saldoDevedor
+    });
+
+    saldoDevedor -= amortizacao;
+  }
+
+  return cronograma;
+}
+
+// Calcular cronograma de CRI - PRICE (Tabela Price - Parcelas Fixas)
+function calcularPrice_CRI(valorEmissao, taxaMensal, numParcelas, carenciaMeses) {
+  const cronograma = [];
+  let saldoDevedor = valorEmissao;
+
+  // Calcular parcela fixa (após carência)
+  const parcelasAmortizacao = numParcelas - carenciaMeses;
+  const parcelaFixa = parcelasAmortizacao > 0 
+    ? valorEmissao * (taxaMensal * Math.pow(1 + taxaMensal, parcelasAmortizacao)) / 
+      (Math.pow(1 + taxaMensal, parcelasAmortizacao) - 1)
+    : 0;
+
+  for (let i = 1; i <= numParcelas; i++) {
+    const juros = saldoDevedor * taxaMensal;
+    const amortizacao = i > carenciaMeses ? (parcelaFixa - juros) : 0;
+    const parcela = juros + amortizacao;
+
+    cronograma.push({
+      periodo: i,
+      juros: juros,
+      amortizacao: amortizacao,
+      parcela: parcela,
+      saldoDevedor: saldoDevedor
+    });
+
+    saldoDevedor -= amortizacao;
+  }
+
+  return cronograma;
+}
+
+// Calcular cronograma de CRI - BULLET (Pagamento único no vencimento)
+function calcularBullet_CRI(valorEmissao, taxaMensal, numParcelas, carenciaMeses) {
+  const cronograma = [];
+
+  for (let i = 1; i <= numParcelas; i++) {
+    const juros = valorEmissao * taxaMensal;
+    const amortizacao = (i === numParcelas) ? valorEmissao : 0;
+    const parcela = juros + amortizacao;
+
+    cronograma.push({
+      periodo: i,
+      juros: juros,
+      amortizacao: amortizacao,
+      parcela: parcela,
+      saldoDevedor: valorEmissao - amortizacao
+    });
+  }
+
+  return cronograma;
+}
+
+// Calcular custos de emissão de CRI
+function calcularCustosEmissaoCRI(config) {
+  const valorEmissao = config.valorEmissao;
+  
+  const taxaCVM = valorEmissao * (config.custoCRI_CVM / 100);
+  const coordenador = valorEmissao * (config.custoCRI_Coordenador / 100);
+  const agente = config.custoCRI_Agente;
+  const juridica = config.custoCRI_Juridica;
+  const outros = config.custoCRI_Outros;
+  
+  const total = taxaCVM + coordenador + agente + juridica + outros;
+  
+  return {
+    taxaCVM,
+    coordenador,
+    agente,
+    juridica,
+    outros,
+    total
+  };
+}
+
+// Calcular parcela de CRI para um mês específico
+function calcularParcelaCRI(mes, config, cronograma) {
+  if (!config.habilitarCRI || !cronograma) {
+    return null;
+  }
+
+  const mesEmissao = config.mesEmissao;
+  const periodicidade = config.periodicidadeCRI;
+
+  // Mês de emissão: retorna entrada de recursos e custos
+  if (mes === mesEmissao) {
+    const custos = calcularCustosEmissaoCRI(config);
+    const recursosLiquidos = config.valorEmissao - custos.total;
+    
+    return {
+      tipo: 'emissao',
+      entrada: recursosLiquidos,
+      custos: custos
+    };
+  }
+
+  // Verificar se é mês de pagamento
+  const mesesDesdeEmissao = mes - mesEmissao;
+  
+  if (mesesDesdeEmissao > 0 && mesesDesdeEmissao % periodicidade === 0) {
+    const indiceParcela = Math.floor(mesesDesdeEmissao / periodicidade);
+    
+    if (indiceParcela > 0 && indiceParcela <= cronograma.length) {
+      const parcela = cronograma[indiceParcela - 1];
+      
+      return {
+        tipo: 'pagamento',
+        juros: parcela.juros,
+        amortizacao: parcela.amortizacao,
+        parcela: parcela.parcela,
+        saldoDevedor: parcela.saldoDevedor
+      };
+    }
+  }
+
+  return null;
+}
+
 // ========== CÁLCULO PRINCIPAL ==========
 function performCalculation() {
   console.log("Iniciando cálculo...");
@@ -204,6 +348,80 @@ function performCalculation() {
     parseFloat(document.getElementById("taxaInadimplencia").value) / 100;
   const custosManutencao =
     parseFloat(document.getElementById("custosManutencao").value) / 100;
+
+  // ========== CRI: LER CONFIGURAÇÃO ==========
+  const habilitarCRI = document.getElementById("habilitarCRI")?.checked || false;
+  const cdiAnual = parseFloat(document.getElementById("cdiAnual")?.value || 15) / 100;
+  
+  let configCRI = null;
+  let cronogramaCRI = null;
+
+  if (habilitarCRI) {
+    const valorEmissaoCRI = parseCurrencyInput(document.getElementById("valorEmissaoCRI"));
+    const prazoAnosCRI = parseInt(document.getElementById("prazoCRI").value);
+    const carenciaAnosCRI = parseInt(document.getElementById("carenciaCRI").value);
+    const sistemaCRI = document.getElementById("sistemaAmortizacaoCRI").value;
+    const periodicidadeCRI = parseInt(document.getElementById("periodicidadeCRI").value);
+    const mesEmissaoCRI = parseInt(document.getElementById("mesEmissaoCRI").value);
+    const indexadorCRI = document.getElementById("indexadorCRI").value;
+    const taxaJurosCRI_input = parseFloat(document.getElementById("taxaJurosCRI").value.replace(',', '.'));
+
+    // Calcular taxa mensal baseada no indexador
+    let taxaMensalCRI;
+    
+    if (indexadorCRI === 'cdi') {
+      // CDI: usar percentual do CDI
+      const cdiMensal = Math.pow(1 + cdiAnual, 1 / 12) - 1;
+      taxaMensalCRI = cdiMensal * (taxaJurosCRI_input / 100);
+    } else if (indexadorCRI === 'ipca') {
+      // IPCA + taxa
+      const ipcaMensalCalc = Math.pow(1 + ipcaAnual, 1 / 12) - 1;
+      const taxaAdicional = Math.pow(1 + (taxaJurosCRI_input / 100), 1 / 12) - 1;
+      taxaMensalCRI = (1 + ipcaMensalCalc) * (1 + taxaAdicional) - 1;
+    } else if (indexadorCRI === 'prefixado') {
+      // Taxa pré-fixada anual convertida para mensal
+      taxaMensalCRI = Math.pow(1 + (taxaJurosCRI_input / 100), 1 / 12) - 1;
+    } else if (indexadorCRI === 'igpm') {
+      // IGP-M (simplificado: usar mesma taxa que IPCA)
+      const igpmMensal = Math.pow(1 + ipcaAnual, 1 / 12) - 1;
+      const taxaAdicional = Math.pow(1 + (taxaJurosCRI_input / 100), 1 / 12) - 1;
+      taxaMensalCRI = (1 + igpmMensal) * (1 + taxaAdicional) - 1;
+    }
+
+    const totalParcelasCRI = Math.floor((prazoAnosCRI * 12) / periodicidadeCRI);
+    const carenciaMesesCRI = carenciaAnosCRI * 12;
+    const carenciaParcelasCRI = Math.floor(carenciaMesesCRI / periodicidadeCRI);
+
+    // Gerar cronograma baseado no sistema
+    if (sistemaCRI === 'sac') {
+      cronogramaCRI = calcularSAC_CRI(valorEmissaoCRI, taxaMensalCRI, totalParcelasCRI, carenciaParcelasCRI);
+    } else if (sistemaCRI === 'price') {
+      cronogramaCRI = calcularPrice_CRI(valorEmissaoCRI, taxaMensalCRI, totalParcelasCRI, carenciaParcelasCRI);
+    } else if (sistemaCRI === 'bullet') {
+      cronogramaCRI = calcularBullet_CRI(valorEmissaoCRI, taxaMensalCRI, totalParcelasCRI, carenciaParcelasCRI);
+    }
+
+    configCRI = {
+      habilitarCRI: true,
+      valorEmissao: valorEmissaoCRI,
+      prazoAnos: prazoAnosCRI,
+      carenciaAnos: carenciaAnosCRI,
+      sistema: sistemaCRI,
+      periodicidadeCRI: periodicidadeCRI,
+      mesEmissao: mesEmissaoCRI,
+      indexador: indexadorCRI,
+      taxaJurosCRI: taxaJurosCRI_input,
+      taxaMensalCRI: taxaMensalCRI,
+      custoCRI_CVM: parseFloat(document.getElementById("custoCRI_CVM").value.replace(',', '.')),
+      custoCRI_Coordenador: parseFloat(document.getElementById("custoCRI_Coordenador").value.replace(',', '.')),
+      custoCRI_Agente: parseCurrencyInput(document.getElementById("custoCRI_Agente")),
+      custoCRI_Juridica: parseCurrencyInput(document.getElementById("custoCRI_Juridica")),
+      custoCRI_Outros: parseCurrencyInput(document.getElementById("custoCRI_Outros"))
+    };
+
+    console.log('CRI Configurado:', configCRI);
+    console.log('Cronograma CRI gerado:', cronogramaCRI);
+  }
 
   if (
     investimentoInicial <= 0 ||
@@ -402,7 +620,19 @@ function performCalculation() {
     );
     const custoITBI = m === 1 ? investimentoInicial * itbiFII : 0;
 
-    const baseIRAluguel = Math.max(0, aluguelEfetivo);
+    // ========== CRI: CONSOLIDADO ==========
+    // Visão consolidada: FII = Empresa
+    // Empresa paga parcela → FII recebe parcela = ZERO no consolidado
+    // ÚNICA diferença: juros deduzem da base de IR
+    
+    let jurosCRI = 0;           // Juros do mês (dedutíveis do IR)
+    let custosEmissaoMesCRI = 0;   // Custos de emissão CRI
+    
+    // TODO: Implementar leitura de habilitarCRI e configuração
+    // Por enquanto, deixar como 0 para não quebrar cálculos existentes
+    
+    // Base de IR: lucro MENOS juros dedutíveis do CRI
+    const baseIRAluguel = Math.max(0, aluguelEfetivo - jurosCRI);
     const irAluguel = baseIRAluguel * irAluguelFII;
 
     // Taxas regulatórias
