@@ -628,8 +628,17 @@ function performCalculation() {
     let jurosCRI = 0;           // Juros do mês (dedutíveis do IR)
     let custosEmissaoMesCRI = 0;   // Custos de emissão CRI
     
-    // TODO: Implementar leitura de habilitarCRI e configuração
-    // Por enquanto, deixar como 0 para não quebrar cálculos existentes
+    if (habilitarCRI && configCRI) {
+      const parcelaCRIMes = calcularParcelaCRI(m, configCRI, cronogramaCRI);
+      if (parcelaCRIMes) {
+        if (parcelaCRIMes.tipo === 'emissao') {
+          custosEmissaoMesCRI = parcelaCRIMes.custos.total;
+          valorCaixaAtualFII -= custosEmissaoMesCRI;
+        } else if (parcelaCRIMes.tipo === 'pagamento') {
+          jurosCRI = parcelaCRIMes.juros;
+        }
+      }
+    }
     
     // Base de IR: lucro MENOS juros dedutíveis do CRI
     const baseIRAluguel = Math.max(0, aluguelEfetivo - jurosCRI);
@@ -876,6 +885,18 @@ function performCalculation() {
     dadosFII.reduce((sum, d) => sum + (isFinite(d.margem) ? d.margem : 0), 0) /
     dadosFII.length;
 
+  // Calcular totais de CRI
+  let totalJurosCRI = 0;
+  let totalCustosEmissaoCRI = 0;
+  let economiaFiscalCRI = 0;
+  
+  if (habilitarCRI && configCRI && cronogramaCRI) {
+    cronogramaCRI.forEach(parcela => { totalJurosCRI += parcela.juros; });
+    const custosCRI = calcularCustosEmissaoCRI(configCRI);
+    totalCustosEmissaoCRI = custosCRI.total;
+    economiaFiscalCRI = totalJurosCRI * 0.34;
+  }
+
   // ✅ CORREÇÃO: Armazenar resultados consolidados para o PDF (igual ao FIP-IE)
   window.resultadosSimulacao = {
     direto: {
@@ -896,6 +917,13 @@ function performCalculation() {
       margemMedia: margemMedioFII,
       tir: tirFIIAnual
     },
+    cri: habilitarCRI ? {
+      valorEmissao: configCRI.valorEmissao,
+      jurosTotais: totalJurosCRI,
+      custosEmissao: totalCustosEmissaoCRI,
+      economiaFiscal: economiaFiscalCRI,
+      percentualEconomia: totalJurosCRI > 0 ? (economiaFiscalCRI / totalJurosCRI) * 100 : 0
+    } : null,
     diferenca: valorTotalFII - valorTotalDireto,
     diferencaPct: ((valorTotalFII - valorTotalDireto) / valorTotalDireto) * 100
   };
