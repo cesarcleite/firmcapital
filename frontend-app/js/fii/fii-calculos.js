@@ -945,6 +945,11 @@ function performCalculation() {
   updateCharts();
   updateTables();
   updateSensitivity();
+  
+  // Mostrar card de CRI se habilitado
+  if (typeof mostrarCardCRI === 'function') {
+    mostrarCardCRI();
+  }
 }
 
 // ========== CÁLCULO TIR ==========

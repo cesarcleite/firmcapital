@@ -2667,3 +2667,5 @@ function handleError(error) {
     "Ocorreu um erro inesperado";
   showNotification(message, "error");
 }
+/ /   = = = = = = = = = =   C A R D   C R I   = = = = = = = = = =  
+ 
