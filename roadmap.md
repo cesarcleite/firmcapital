@@ -9,6 +9,8 @@
 9 - [x] Quando está no Dashboard e se clica no botão da smiulação ele leva para /frontend-app/usuario/simulacoes.htmlao invés de ir direto a simulação. Ale´m disso, tem dois bot]oes que fazem a mesma coisa. O ideal é que a partir do dashboard ele fosse diretamente par aa simulação como se estivesse saindo do /frontend-app/usuario/simulacoes.html. Deveria ter somente um botão "Visualizar/Editar" no dashboar assim como em simulações. 
 10 - [x] Quando emissão de debenture estivar acionada, tem de demonstrar na tela e no PDF o ganho nominal com essa operaçao tributária.
 11 - [x] Debentures e CRI no menu de configurações devem estar na últim aposição abaixo de "Configurações Avançadas"
+12 - [ ] PDF cheio de problemas
+
 
 
 
