@@ -2660,6 +2660,201 @@ function showNotification(message, type = "info") {
 
 // ========== TRATAMENTO DE ERROS ==========
 function handleError(error) {
+}
+
+function showModalCadastroCliente() {
+  document.getElementById("modalCadastroCliente").style.display = "flex";
+  document.getElementById("novoClienteNome").focus();
+}
+
+function closeModalCadastroCliente() {
+  document.getElementById("modalCadastroCliente").style.display = "none";
+  // Limpar campos
+  document.getElementById("novoClienteNome").value = "";
+  document.getElementById("novoClienteTipo").value = "PF";
+  document.getElementById("novoClienteCpfCnpj").value = "";
+  document.getElementById("novoClienteEmail").value = "";
+  document.getElementById("novoClienteTelefone").value = "";
+}
+
+function ajustarCampoCpfCnpj() {
+  const tipo = document.getElementById("novoClienteTipo").value;
+  const input = document.getElementById("novoClienteCpfCnpj");
+
+  if (tipo === "PF") {
+    input.placeholder = "000.000.000-00";
+    input.maxLength = 14;
+  } else {
+    input.placeholder = "00.000.000/0000-00";
+    input.maxLength = 18;
+  }
+}
+
+async function salvarNovoCliente() {
+  try {
+    const nome = document.getElementById("novoClienteNome").value.trim();
+    const tipo = document.getElementById("novoClienteTipo").value;
+    const cpfCnpj = document.getElementById("novoClienteCpfCnpj").value.trim();
+    const email = document.getElementById("novoClienteEmail").value.trim();
+    const telefone = document
+      .getElementById("novoClienteTelefone")
+      .value.trim();
+
+    if (!nome) {
+      showNotification("Nome é obrigatório", "error");
+      return;
+    }
+
+    const novoCliente = {
+      nome,
+      tipo,
+      cpfCnpj,
+      email: email || undefined,
+      telefone: telefone || undefined,
+      ativo: true,
+    };
+
+    const response = await api.createCliente(novoCliente);
+
+    if (response.success) {
+      showNotification("Cliente cadastrado com sucesso!", "success");
+
+      // Adicionar à lista de clientes
+      const selectCliente = document.getElementById("cliente");
+      const selectClienteModal = document.getElementById("clienteModal");
+
+      const option = document.createElement("option");
+      option.value = response.data._id;
+      option.textContent = `${response.data.nome} - ${response.data.cpfCnpj}`;
+      option.dataset.nome = response.data.nome.toLowerCase();
+      option.dataset.cpfcnpj = response.data.cpfCnpj;
+
+      selectCliente.appendChild(option.cloneNode(true));
+      selectClienteModal.appendChild(option);
+
+      // Selecionar o novo cliente em ambos os selects
+      selectCliente.value = response.data._id;
+      selectClienteModal.value = response.data._id;
+
+      closeModalCadastroCliente();
+
+      // Reabrir modal de seleção para confirmar
+      showModalCliente();
+    } else {
+      showNotification(
+        response.message || "Erro ao cadastrar cliente",
+        "error"
+      );
+    }
+  } catch (error) {
+    console.error("Erro ao cadastrar cliente:", error);
+    handleError(error);
+  }
+}
+
+// ========== MODAL DE TÍTULO ==========
+function showModalTitulo() {
+  // Preencher com valores atuais se existirem
+  const tituloAtual = document.getElementById("titulo").value;
+  const descricaoAtual = document.getElementById("descricao").value;
+
+  document.getElementById("tituloModal").value = tituloAtual;
+  document.getElementById("descricaoModal").value = descricaoAtual;
+
+  document.getElementById("modalTitulo").style.display = "flex";
+  document.getElementById("tituloModal").focus();
+}
+
+function closeModalTitulo() {
+  document.getElementById("modalTitulo").style.display = "none";
+}
+
+function confirmarTitulo() {
+  const titulo = document.getElementById("tituloModal").value.trim();
+
+  if (!titulo) {
+    showNotification("Por favor, informe o título da simulação", "error");
+    return;
+  }
+
+  // Atualizar campos principais
+  document.getElementById("titulo").value = titulo;
+  document.getElementById("descricao").value = document
+    .getElementById("descricaoModal")
+    .value.trim();
+
+  closeModalTitulo();
+
+  // Continuar com o salvamento
+  salvarSimulacao();
+}
+
+// ========== LIMPAR SIMULAÇÃO (COM CONFIRMAÇÃO PADRÃO) ==========
+async function limparSimulacao() {
+  // Verifica se a função confirmAction existe (do dashboard.js)
+  if (typeof confirmAction === "function") {
+    const confirmed = await confirmAction({
+      title: "Limpar Simulação",
+      message:
+        "Tem certeza que deseja limpar toda a simulação? Esta ação não pode ser desfeita.",
+      confirmText: "Sim, limpar",
+      cancelText: "Cancelar",
+      type: "warning",
+    });
+
+    if (confirmed) {
+      location.reload();
+    }
+  } else {
+    // Fallback caso confirmAction não exista
+    if (
+      confirm(
+        "Tem certeza que deseja limpar toda a simulação? Esta ação não pode ser desfeita."
+      )
+    ) {
+      location.reload();
+    }
+  }
+}
+
+// ========== NOTIFICAÇÕES ==========
+function showNotification(message, type = "info") {
+  const existing = document.querySelector(".notification");
+  if (existing) {
+    existing.remove();
+  }
+
+  const notification = document.createElement("div");
+  notification.className = "notification";
+  notification.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: ${
+      type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6"
+    }; color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: fixed; top: 20px; right: 20px; z-index: 10001; max-width: 400px;">
+      <i class="fas fa-${
+        type === "success"
+          ? "check-circle"
+          : type === "error"
+          ? "exclamation-circle"
+          : "info-circle"
+      }"></i>
+      <span>${message}</span>
+      <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem; margin-left: auto;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    if (notification.parentElement) {
+      notification.remove();
+    }
+  }, 5000);
+}
+
+// ========== TRATAMENTO DE ERROS ==========
+function handleError(error) {
   console.error("Erro:", error);
   const message =
     error.response?.data?.message ||
@@ -2667,5 +2862,95 @@ function handleError(error) {
     "Ocorreu um erro inesperado";
   showNotification(message, "error");
 }
-/ /   = = = = = = = = = =   C A R D   C R I   = = = = = = = = = =  
- 
+
+// ========== CÁLCULO PRINCIPAL ==========
+function calcular() {
+  if (!validarEntradas()) {
+    return;
+  }
+
+  document.querySelectorAll(".accordion-item").forEach((item) => {
+    item.classList.remove("active");
+  });
+
+  document.getElementById("loading").classList.add("show");
+  document.getElementById("results").style.display = "none";
+
+  const progressFill = document.getElementById("progressFill");
+  let progress = 0;
+  const progressInterval = setInterval(() => {
+    progress += Math.random() * 15;
+    if (progress > 90) progress = 90;
+    progressFill.style.width = progress + "%";
+  }, 50);
+
+  setTimeout(() => {
+    try {
+      performCalculation();
+      clearInterval(progressInterval);
+      progressFill.style.width = "100%";
+
+      setTimeout(() => {
+        document.getElementById("loading").classList.remove("show");
+        const resultsEl = document.getElementById("results");
+        if (resultsEl) {
+            resultsEl.style.display = "block";
+            resultsEl.scrollIntoView({ behavior: 'smooth' });
+        }
+        progressFill.style.width = "0%";
+      }, 200);
+    } catch (error) {
+      console.error("Erro no cálculo:", error);
+      clearInterval(progressInterval);
+      document.getElementById("loading").classList.remove("show");
+      showNotification("Erro no cálculo: " + error.message, "error");
+      progressFill.style.width = "0%";
+    }
+  }, 800);
+}
+
+// ========== CARD CRI ==========
+function mostrarCardCRI() {
+  const cardExistente = document.getElementById('criFullCard');
+  if (cardExistente) cardExistente.remove();
+  
+  if (!window.resultadosSimulacao || !window.resultadosSimulacao.cri) return;
+  
+  const criData = window.resultadosSimulacao.cri;
+  const card = document.createElement('div');
+  card.id = 'criFullCard';
+  card.style.cssText = 'display:block;margin-top:1.5rem;padding:1.5rem;background:white;border:1px solid #dee2e6;border-radius:8px;';
+  
+  card.innerHTML = `
+    <h3 style="margin:0 0 1rem 0;font-size:1.1rem;color:var(--gray-dark);border-bottom:1px solid #e9ecef;padding-bottom:0.75rem;">
+      CRI - Certificados de Recebíveis Imobiliários
+    </h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:1rem;">
+      <div style="padding:1rem;border:1px solid #e9ecef;border-radius:6px;">
+        <div style="font-size:0.85rem;color:var(--gray-medium);margin-bottom:0.5rem;">Valor da Emissão</div>
+        <div style="font-size:1.3rem;font-weight:600;color:var(--gray-dark);">${formatCurrency(criData.valorEmissao)}</div>
+      </div>
+      <div style="padding:1rem;border:1px solid #e9ecef;border-radius:6px;">
+        <div style="font-size:0.85rem;color:var(--gray-medium);margin-bottom:0.5rem;">Juros Totais (Teóricos)</div>
+        <div style="font-size:1.3rem;font-weight:600;color:var(--gray-dark);">${formatCurrency(criData.jurosTotais)}</div>
+      </div>
+      <div style="padding:1rem;border:1px solid #28a745;border-radius:6px;background:#f8fff9;">
+        <div style="font-size:0.85rem;color:var(--gray-dark);margin-bottom:0.5rem;font-weight:500;">Economia Fiscal Total</div>
+        <div style="font-size:1.3rem;font-weight:700;color:#28a745;">${formatCurrency(criData.economiaFiscal)}</div>
+      </div>
+    </div>
+    <div style="padding:0.75rem;background:rgba(197,164,126,0.1);border-radius:6px;font-size:0.85rem;color:var(--gray-dark);">
+      <strong>Benefício Fiscal:</strong> Dedução de 34% dos juros pagos (empresa deduz IR/CSLL). Em visão consolidada, não há movimento de caixa - apenas redução da base tributável.
+    </div>
+  `;
+  
+  const container = document.querySelector('.container') || document.querySelector('.content-area');
+  if (container) {
+    const botaoCalcular = Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.includes('Calcular'));
+    if (botaoCalcular && botaoCalcular.parentElement) {
+      botaoCalcular.parentElement.insertAdjacentElement('afterend', card);
+    } else {
+      container.appendChild(card);
+    }
+  }
+}
