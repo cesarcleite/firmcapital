@@ -1077,6 +1077,51 @@ class SimulacaoPDFGenerator {
 
     yPos = doc.lastAutoTable.finalY + 15;
 
+    // CRI (se habilitado)
+    if (window.resultadosSimulacao && window.resultadosSimulacao.cri) {
+      const criData = window.resultadosSimulacao.cri;
+      
+      // Verificar se precisa de nova página
+      if (yPos > 220) {
+        doc.addPage();
+        yPos = 50;
+      }
+      
+      this.adicionarSubtitulo(doc, "CRI - Certificados de Recebíveis Imobiliários (Lei 12.431/2011)", yPos);
+      yPos += 8;
+
+      const criInfo = [
+        ["Valor da Emissão", this.formatMoeda(criData.valorEmissao)],
+        ["Juros Totais (Teóricos)", this.formatMoeda(criData.jurosTotais)],
+        ["Ganho Nominal (Economia Fiscal)", this.formatMoeda(criData.economiaFiscal)],
+        ["Percentual de Economia", criData.percentualEconomia.toFixed(0) + "% dos juros pagos"]
+      ];
+
+      doc.autoTable({
+        startY: yPos,
+        body: criInfo,
+        theme: "plain",
+        bodyStyles: { fontSize: 9 },
+        columnStyles: {
+          0: { fontStyle: "bold", cellWidth: 75, textColor: this.colors.medium },
+          1: { halign: "right", cellWidth: "auto", fontStyle: "bold", textColor: this.colors.success },
+        },
+        margin: { left: this.margin + 5, right: this.margin + 5 },
+      });
+
+      yPos = doc.lastAutoTable.finalY + 8;
+
+      // Explicação do benefício fiscal
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(...this.colors.medium);
+      const explicacao = "Benefício Fiscal: A empresa deduz os juros do IR/CSLL (economia de 34%). Em visão consolidada, não há movimento de caixa - apenas redução da base tributável.";
+      const explicacaoLines = doc.splitTextToSize(explicacao, this.usableWidth - 10);
+      doc.text(explicacaoLines, this.margin + 5, yPos);
+
+      yPos += explicacaoLines.length * 4 + 10;
+    }
+
     // Análise de Custos (se FII) - COM CONTROLE DE MARGEM
     if (custosFII && custosFII.length > 0) {
       this.adicionarSubtitulo(doc, "Análise de Custos do FII", yPos);

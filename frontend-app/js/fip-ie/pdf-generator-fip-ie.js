@@ -1093,6 +1093,51 @@ class SimulacaoPDFGenerator {
 
     yPos = doc.lastAutoTable.finalY + 15;
 
+    //  Debêntures Incentivadas (se habilitado)
+    if (window.resultadosSimulacao && window.resultadosSimulacao.debentures) {
+     const debData = window.resultadosSimulacao.debentures;
+      
+      // Verificar se precisa de nova página
+      if (yPos > 220) {
+        doc.addPage();
+        yPos = 50;
+      }
+      
+      this.adicionarSubtitulo(doc, "Debêntures Incentivadas (Lei 12.431/2011)", yPos);
+      yPos += 8;
+
+      const debenturesInfo = [
+        ["Valor da Emissão", this.formatMoeda(debData.valorEmissao)],
+        ["Juros Totais (Teóricos)", this.formatMoeda(debData.jurosTotais)],
+        ["Ganho Nominal (Economia Fiscal)", this.formatMoeda(debData.economiaFiscal)],
+        ["Percentual de Economia", debData.percentualEconomia.toFixed(0) + "% dos juros pagos"]
+      ];
+
+      doc.autoTable({
+        startY: yPos,
+        body: debenturesInfo,
+        theme: "plain",
+        bodyStyles: { fontSize: 9 },
+        columnStyles: {
+          0: { fontStyle: "bold", cellWidth: 75, textColor: this.colors.medium },
+          1: { halign: "right", cellWidth: "auto", fontStyle: "bold", textColor: this.colors.success },
+        },
+        margin: { left: this.margin + 5, right: this.margin + 5 },
+      });
+
+      yPos = doc.lastAutoTable.finalY + 8;
+
+      // Explicação do benefício fiscal
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(...this.colors.medium);
+      const explicacao = "Benefício Fiscal: A empresa deduz os juros do IR/CSLL (34%) e o FIP-IE recebe juros isentos (mais 34%). Resultado: 68% dos juros permanecem no ecossistema.";
+      const explicacaoLines = doc.splitTextToSize(explicacao, this.usableWidth - 10);
+      doc.text(explicacaoLines, this.margin + 5, yPos);
+
+      yPos += explicacaoLines.length * 4 + 10;
+    }
+
     // Análise de Custos (se FII) - COM CONTROLE DE MARGEM
     if (custosFII && custosFII.length > 0) {
       this.adicionarSubtitulo(doc, "Análise de Custos do FIP-IE", yPos);

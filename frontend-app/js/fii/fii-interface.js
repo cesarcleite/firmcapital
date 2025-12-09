@@ -2917,40 +2917,46 @@ function mostrarCardCRI() {
   if (!window.resultadosSimulacao || !window.resultadosSimulacao.cri) return;
   
   const criData = window.resultadosSimulacao.cri;
+  
+  //Criar card usando  mesmo formato do FIP-IE
   const card = document.createElement('div');
   card.id = 'criFullCard';
-  card.style.cssText = 'display:block;margin-top:1.5rem;padding:1.5rem;background:white;border:1px solid #dee2e6;border-radius:8px;';
+  card.className = 'summary-card fii';
+  card.style.cssText = 'display: block; margin-top: 1.5rem; margin-bottom: 2rem; grid-column: 1 / -1;';
   
   card.innerHTML = `
-    <h3 style="margin:0 0 1rem 0;font-size:1.1rem;color:var(--gray-dark);border-bottom:1px solid #e9ecef;padding-bottom:0.75rem;">
-      CRI - Certificados de Recebíveis Imobiliários
-    </h3>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:1rem;">
-      <div style="padding:1rem;border:1px solid #e9ecef;border-radius:6px;">
-        <div style="font-size:0.85rem;color:var(--gray-medium);margin-bottom:0.5rem;">Valor da Emissão</div>
-        <div style="font-size:1.3rem;font-weight:600;color:var(--gray-dark);">${formatCurrency(criData.valorEmissao)}</div>
+    <h3>CRI - Certificados de Recebíveis Imobiliários (Lei 12.431/2011)</h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1rem;">
+      <div style="text-align: center;">
+        <div style="font-size: 0.85rem; color: var(--gray-medium); margin-bottom: 0.5rem;">Valor da Emissão</div>
+        <div class="value">${formatCurrency(criData.valorEmissao)}</div>
       </div>
-      <div style="padding:1rem;border:1px solid #e9ecef;border-radius:6px;">
-        <div style="font-size:0.85rem;color:var(--gray-medium);margin-bottom:0.5rem;">Juros Totais (Teóricos)</div>
-        <div style="font-size:1.3rem;font-weight:600;color:var(--gray-dark);">${formatCurrency(criData.jurosTotais)}</div>
+      <div style="text-align: center;">
+        <div style="font-size: 0.85rem; color: var(--gray-medium); margin-bottom: 0.5rem;">Juros Totais (Teóricos)</div>
+        <div class="value">${formatCurrency(criData.jurosTotais)}</div>
       </div>
-      <div style="padding:1rem;border:1px solid #28a745;border-radius:6px;background:#f8fff9;">
-        <div style="font-size:0.85rem;color:var(--gray-dark);margin-bottom:0.5rem;font-weight:500;">Economia Fiscal Total</div>
-        <div style="font-size:1.3rem;font-weight:700;color:#28a745;">${formatCurrency(criData.economiaFiscal)}</div>
+      <div style="text-align: center;">
+        <div style="font-size: 0.85rem; color: var(--gray-dark); margin-bottom: 0.5rem; font-weight: 600;">Economia Fiscal Total</div>
+        <div class="value" style="color: var(--success);">${formatCurrency(criData.economiaFiscal)}</div>
+        <div class="subtitle">(${criData.percentualEconomia.toFixed(0)}% dos juros)</div>
       </div>
     </div>
-    <div style="padding:0.75rem;background:rgba(197,164,126,0.1);border-radius:6px;font-size:0.85rem;color:var(--gray-dark);">
-      <strong>Benefício Fiscal:</strong> Dedução de 34% dos juros pagos (empresa deduz IR/CSLL). Em visão consolidada, não há movimento de caixa - apenas redução da base tributável.
+    
+    <div class="subtitle" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: center; line-height: 1.5;">
+      <strong>Benefício Fiscal:</strong> A empresa deduz os juros pagos do IR/CSLL (economia de 34%).
+      Em visão consolidada, não há movimento de caixa - apenas redução da base tributável.
     </div>
   `;
   
-  const container = document.querySelector('.container') || document.querySelector('.content-area');
-  if (container) {
-    const botaoCalcular = Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.includes('Calcular'));
-    if (botaoCalcular && botaoCalcular.parentElement) {
-      botaoCalcular.parentElement.insertAdjacentElement('afterend', card);
+  // Inserir no mesmo local que o card de debêntures do FIP-IE
+  const resultsDiv = document.getElementById('results');
+  if (resultsDiv) {
+    const metricsGrid = resultsDiv.querySelector('.metrics-grid');
+    if (metricsGrid) {
+      metricsGrid.insertAdjacentElement('afterend', card);
     } else {
-      container.appendChild(card);
+      resultsDiv.appendChild(card);
     }
   }
 }
