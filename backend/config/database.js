@@ -13,7 +13,12 @@ const connectDB = async () => {
       )}`
     );
 
-    const conn = await mongoose.connect(uri); // Removidas as opções deprecated
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      minPoolSize: 2,
+    });
 
     console.log(`✅ MongoDB Conectado: ${conn.connection.host}`);
 
@@ -22,7 +27,8 @@ const connectDB = async () => {
     });
 
     mongoose.connection.on("disconnected", () => {
-      console.warn("⚠️  MongoDB desconectado");
+      console.warn("⚠️  MongoDB desconectado - tentando reconectar...");
+      setTimeout(() => connectDB(), 5000);
     });
 
     process.on("SIGINT", async () => {

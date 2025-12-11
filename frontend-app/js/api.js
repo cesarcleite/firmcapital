@@ -29,8 +29,12 @@ class API {
 
     if (includeAuth) {
       const token = this.getToken();
+      console.log("🔑 DEBUG: Token encontrado?", !!token, "Token:", token ? token.substring(0, 20) + "..." : "NENHUM");
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
+        console.log("✅ DEBUG: Header Authorization adicionado");
+      } else {
+        console.log("❌ DEBUG: SEM TOKEN - requisição sem autenticação!");
       }
     }
 

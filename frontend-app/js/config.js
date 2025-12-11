@@ -7,7 +7,7 @@ const API_CONFIG = {
     window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1"
       ? "http://localhost:5002/api"
-      : "https://api.firmcapital.com/api",
+      : "https://app.firmcapital.com.br/api",
 
   TIMEOUT: 30000, // 30 segundos
 

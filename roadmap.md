@@ -10,6 +10,10 @@
 10 - [x] Quando emissão de debenture estivar acionada, tem de demonstrar na tela e no PDF o ganho nominal com essa operaçao tributária.
 11 - [x] Debentures e CRI no menu de configurações devem estar na últim aposição abaixo de "Configurações Avançadas"
 12 - [ ] PDF cheio de problemas
+13 - [x] Login no sistema no ambiente de produção
+14 - [x] Limpar arquivos do deploy
+
+
 
 
 

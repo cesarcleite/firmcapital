@@ -19,20 +19,26 @@ exports.protect = async (req, res, next) => {
 
     // Verifica se o token existe
     if (!token) {
+      console.log("🚫 AUTH MIDDLEWARE: SEM TOKEN no header");
       return res.status(401).json({
         success: false,
         error: ERROR_MESSAGES.UNAUTHORIZED,
       });
     }
 
+    console.log("🔑 AUTH MIDDLEWARE: Token recebido:", token.substring(0, 20) + "...");
+
     try {
       // Verifica e decodifica o token
       const decoded = jwt.verify(token, config.jwtSecret);
+      console.log("✅ AUTH MIDDLEWARE: Token decodificado, user ID:", decoded.id);
 
       // Busca o usuário pelo ID do token
       req.user = await User.findById(decoded.id).select("-senha");
+      console.log("👤 AUTH MIDDLEWARE: Usuário encontrado?", !!req.user, "ID:", decoded.id);
 
       if (!req.user) {
+        console.log("❌ AUTH MIDDLEWARE: Usuário NÃO encontrado no banco!");
         return res.status(401).json({
           success: false,
           error: ERROR_MESSAGES.UNAUTHORIZED,
@@ -47,9 +53,12 @@ exports.protect = async (req, res, next) => {
         });
       }
 
-      // Atualiza último acesso
-      req.user.ultimoAcesso = Date.now();
-      await req.user.save({ validateBeforeSave: false });
+      // Atualizar último acesso (usar updateOne para evitar problemas com versioning)
+      await User.findByIdAndUpdate(
+        req.user._id,
+        { ultimoAcesso: Date.now() },
+        { timestamps: false }
+      );
 
       next();
     } catch (err) {

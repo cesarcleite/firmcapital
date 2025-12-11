@@ -1,0 +1,52 @@
+[
+  {
+    "_id": "68e1e41ba987101529e629b2",
+    "nome": "Cliente Teste",
+    "email": "cesarleite@gmail.com",
+    "cpfCnpj": "99425220000",
+    "usuario": null,
+    "responsavel": "68e19b25d4dc1d4bdc5cd23c",
+    "empresaDona": "68e19aeea0ffc87b336571b3",
+    "tags": [],
+    "ativo": true,
+    "criadoPor": "68e19b25d4dc1d4bdc5cd23c",
+    "dataCriacao": "2025-10-05T03:20:59.894Z",
+    "dataAtualizacao": "2025-10-05T03:20:59.895Z",
+    "createdAt": "2025-10-05T03:20:59.895Z",
+    "updatedAt": "2025-10-05T03:20:59.895Z",
+    "__v": 0
+  },
+  {
+    "_id": "68e317348e53a94c4b1b5ab5",
+    "nome": "Joãozinho da Silva",
+    "email": "tetsts@dswd.dwdw",
+    "cpfCnpj": "9999999900",
+    "usuario": "692b88f90ad4d74c4427c04e",
+    "responsavel": "68e19b25d4dc1d4bdc5cd23c",
+    "empresaDona": "68e19aeea0ffc87b336571b3",
+    "tags": [],
+    "ativo": true,
+    "criadoPor": "68e19b25d4dc1d4bdc5cd23c",
+    "dataCriacao": "2025-10-06T01:11:16.258Z",
+    "dataAtualizacao": "2025-11-29T23:59:53.962Z",
+    "createdAt": "2025-10-06T01:11:16.264Z",
+    "updatedAt": "2025-11-29T23:59:53.962Z",
+    "__v": 0
+  },
+  {
+    "_id": "692b903afff2af8770265289",
+    "nome": "Cliente do Usuário 1",
+    "cpfCnpj": "",
+    "usuario": null,
+    "responsavel": "68e1e161a987101529e62896",
+    "empresaDona": "68e19aeea0ffc87b336571b3",
+    "tags": [],
+    "ativo": true,
+    "criadoPor": "68e1e161a987101529e62896",
+    "dataCriacao": "2025-11-30T00:30:50.035Z",
+    "dataAtualizacao": "2025-11-30T00:30:50.035Z",
+    "createdAt": "2025-11-30T00:30:50.035Z",
+    "updatedAt": "2025-11-30T00:30:50.035Z",
+    "__v": 0
+  }
+]

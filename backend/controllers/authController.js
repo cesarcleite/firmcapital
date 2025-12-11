@@ -139,9 +139,12 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    // Atualizar último acesso
-    usuario.ultimoAcesso = Date.now();
-    await usuario.save({ validateBeforeSave: false });
+    // Atualizar último acesso (usar updateOne para evitar problemas com versioning)
+    await User.findByIdAndUpdate(
+      usuario._id,
+      { ultimoAcesso: Date.now() },
+      { timestamps: false }
+    );
 
     // Log da ação
     await Log.create({

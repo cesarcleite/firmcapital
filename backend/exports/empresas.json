@@ -1,0 +1,37 @@
+[
+  {
+    "_id": "68e19aeea0ffc87b336571b3",
+    "nome": "Firm Capital Investimentos LTDA",
+    "nomeFantasia": "Firm Capital",
+    "cnpj": "00.000.000/0000-00",
+    "email": "admin@firmcapital.com",
+    "telefone": "(51) 99999-9999",
+    "logo": null,
+    "configuracoes": {
+      "logoClaro": "/uploads/logos/empresa-68e19aeea0ffc87b336571b3/logo-claro.png",
+      "logoEscuro": "/uploads/logos/empresa-68e19aeea0ffc87b336571b3/logo-escuro.png",
+      "coresPersonalizadas": {
+        "primaria": "#2d2d2d",
+        "secundaria": "#c5a47e",
+        "fundo": "#f4f1f3"
+      }
+    },
+    "plano": "empresarial",
+    "ativo": true,
+    "dataCriacao": "2025-10-04T22:08:46.950Z",
+    "dataAtualizacao": "2025-10-07T03:06:39.884Z",
+    "createdAt": "2025-10-04T22:08:46.955Z",
+    "updatedAt": "2025-10-07T03:09:31.717Z",
+    "__v": 0,
+    "endereco": {
+      "rua": "Avenida Ipirangaxx",
+      "numero": "12345",
+      "complemento": "",
+      "bairro": "",
+      "cidade": "Porto Alegre",
+      "estado": "RS",
+      "cep": ""
+    },
+    "site": ""
+  }
+]
