@@ -9,6 +9,8 @@
     <!-- Adicione ANTES dos outros scripts, logo após o Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <!-- IMask.js for input masking (CPF, CNPJ, Phone) -->
+    <script src="https://unpkg.com/imask"></script>
 
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
@@ -990,51 +992,102 @@
 
     <!-- Modal de Cadastro Rápido de Cliente -->
     <div id="modalCadastroCliente" class="modal" style="display: none">
-      <div class="modal-content" style="max-width: 600px">
+      <div class="modal-content" style="max-width: 700px">
         <div class="modal-header">
-          <h2>Cadastro Rápido de Cliente</h2>
+          <h2><i class="fas fa-user-plus"></i> Cadastrar Novo Cliente</h2>
           <button class="modal-close" onclick="closeModalCadastroCliente()">
             <i class="fas fa-times"></i>
           </button>
         </div>
         <div class="modal-body">
-          <div class="form-grid-compact">
-            <div class="form-group full-width">
-              <label for="novoClienteNome">Nome / Razão Social *</label>
-              <input type="text" id="novoClienteNome" required />
+          <form id="formNovoCliente">
+            <!-- Dados Principais -->
+            <div class="modal-section">
+              <div class="modal-section-title">
+                <i class="fas fa-user"></i>
+                Dados Principais
+              </div>
+              <div class="form-row single">
+                <div class="form-group">
+                  <label for="novoClienteNome">Nome Completo / Razão Social *</label>
+                  <input 
+                    type="text" 
+                    id="novoClienteNome" 
+                    required 
+                    placeholder="Digite o nome completo ou razão social"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="novoClienteTipo">Tipo de Pessoa *</label>
+                  <select
+                    id="novoClienteTipo"
+                    onchange="ajustarCampoCpfCnpj()"
+                    required
+                  >
+                    <option value="PF">Pessoa Física (CPF)</option>
+                    <option value="PJ">Pessoa Jurídica (CNPJ)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="novoClienteCpfCnpj">CPF / CNPJ</label>
+                  <input 
+                    type="text" 
+                    id="novoClienteCpfCnpj" 
+                    placeholder="000.000.000-00"
+                  />
+                </div>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="novoClienteTipo">Tipo</label>
-              <select
-                id="novoClienteTipo"
-                onchange="ajustarCampoCpfCnpj()"
-              >
-                <option value="PF">Pessoa Física</option>
-                <option value="PJ">Pessoa Jurídica</option>
-              </select>
+
+            <!-- Contato -->
+            <div class="modal-section">
+              <div class="modal-section-title">
+                <i class="fas fa-phone"></i>
+                Contato
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="novoClienteEmail">E-mail</label>
+                  <input 
+                    type="email" 
+                    id="novoClienteEmail" 
+                    placeholder="email@exemplo.com"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="novoClienteTelefone">Telefone</label>
+                  <input 
+                    type="text" 
+                    id="novoClienteTelefone" 
+                    placeholder="(11) 91234-5678"
+                  />
+                </div>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="novoClienteCpfCnpj">CPF/CNPJ</label>
-              <input type="text" id="novoClienteCpfCnpj" />
+
+            <!-- Informação -->
+            <div class="form-info">
+              <i class="fas fa-info-circle"></i>
+              <span>* Campos obrigatórios. Outros dados podem ser adicionados posteriormente na área de clientes.</span>
             </div>
-            <div class="form-group">
-              <label for="novoClienteEmail">E-mail</label>
-              <input type="email" id="novoClienteEmail" />
-            </div>
-            <div class="form-group">
-              <label for="novoClienteTelefone">Telefone</label>
-              <input type="text" id="novoClienteTelefone" />
-            </div>
-          </div>
+          </form>
         </div>
         <div class="modal-footer">
           <button
+            type="button"
             class="btn btn-secondary"
             onclick="closeModalCadastroCliente()"
           >
+            <i class="fas fa-times"></i>
             Cancelar
           </button>
-          <button class="btn" onclick="salvarNovoCliente()">
+          <button 
+            type="button" 
+            class="btn" 
+            onclick="salvarNovoCliente()"
+          >
             <i class="fas fa-save"></i>
             Cadastrar Cliente
           </button>
@@ -1102,5 +1155,7 @@
     <script src="../js/fii/fii-interface.js"></script>
     <script src="../js/fii/fii-calculos.js"></script>
     <script src="../js/fii/pdf-generator-fii.js"></script>
+    <script src="../js/fii/fii-tooltips.js"></script>
+    <script src="../js/shared/masks.js"></script>
   </body>
 </html>

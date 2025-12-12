@@ -12,6 +12,7 @@
 12 - [ ] PDF cheio de problemas
 13 - [x] Login no sistema no ambiente de produção
 14 - [x] Limpar arquivos do deploy
+15 - [ ] FIP Pré Operacional
 
 
 

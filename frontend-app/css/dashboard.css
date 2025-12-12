@@ -614,6 +614,23 @@
   }
 }
 
+/* ========== LAYOUT UTILS ========== */
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0; /* Override default form-group margin inside row */
+}
+
+.form-row.single .form-group {
+  width: 100%;
+}
+
 /* ========== SIDEBAR OVERLAY (mobile) ========== */
 .sidebar-overlay {
   display: none;
@@ -634,4 +651,111 @@
   .sidebar-overlay.active {
     display: block;
   }
+}
+
+/* ========== MODAL ========== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: var(--beige);
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--beige-darker);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--gray-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--gray-medium);
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  width: 40px;
+  height: 40px;
+}
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--gray-dark);
+}
+
+.modal-body {
+  padding: 2.5rem; /* Aumentado para dar mais respiro */
+}
+
+.modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid var(--beige-darker);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.modal-section {
+  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--beige-darker);
+}
+
+.modal-section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-gold);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--gray-medium);
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--beige-dark);
+  border-radius: 6px;
 }

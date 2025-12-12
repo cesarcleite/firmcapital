@@ -13,6 +13,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
       rel="stylesheet"
     />
+    <script src="https://unpkg.com/imask"></script>
 
     <link rel="stylesheet" href="../css/main.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
@@ -146,63 +147,82 @@
 
     <!-- Modal Novo/Editar Cliente -->
     <div id="modalCliente" class="modal" style="display: none">
-      <div class="modal-content">
+      <div class="modal-content" style="max-width: 700px">
         <div class="modal-header">
-          <h2 id="modalTitle">Novo Cliente</h2>
+          <h2><i class="fas fa-user-plus"></i> Cadastrar Novo Cliente</h2>
           <button class="modal-close" onclick="closeModalCliente()">
             <i class="fas fa-times"></i>
           </button>
         </div>
         <div class="modal-body">
           <form id="formCliente">
-            <input type="hidden" id="clienteId" />
-
-            <div class="form-group">
-              <label for="nome">Nome Completo *</label>
-              <input type="text" id="nome" required />
+            <input type="hidden" id="clienteId" value="">
+            
+            <!-- Dados Principais -->
+            <div class="modal-section">
+              <div class="modal-section-title">
+                <i class="fas fa-user"></i>
+                Dados Principais
+              </div>
+              <div class="form-row single">
+                <div class="form-group">
+                  <label for="nome">Nome Completo / Razão Social *</label>
+                  <input type="text" id="nome" required="" placeholder="Digite o nome completo ou razão social">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="tipoPessoa">Tipo de Pessoa *</label>
+                  <select id="tipoPessoa" onchange="ajustarMascaraCpfCnpj()" required>
+                    <option value="PF">Pessoa Física (CPF)</option>
+                    <option value="PJ">Pessoa Jurídica (CNPJ)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="cpfCnpj">CPF / CNPJ</label>
+                  <input type="text" id="cpfCnpj" placeholder="000.000.000-00">
+                </div>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label for="email">Email *</label>
-              <input type="email" id="email" required />
+            <!-- Contato -->
+            <div class="modal-section">
+              <div class="modal-section-title">
+                <i class="fas fa-phone"></i>
+                Contato
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="email">E-mail</label>
+                  <input type="email" id="email" placeholder="email@exemplo.com">
+                </div>
+                <div class="form-group">
+                  <label for="telefone">Telefone</label>
+                  <input type="text" id="telefone" placeholder="(11) 91234-5678">
+                </div>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label for="cpfCnpj">CPF/CNPJ *</label>
-              <input type="text" id="cpfCnpj" required />
-            </div>
-
-            <div class="form-group">
-              <label for="telefone">Telefone</label>
-              <input type="tel" id="telefone" />
-            </div>
-
-            <div class="form-group">
-              <label for="empresa">Empresa</label>
-              <input type="text" id="empresa" />
-            </div>
-
-            <div class="form-group">
-              <label for="cargo">Cargo</label>
-              <input type="text" id="cargo" />
-            </div>
-
-            <div class="form-group">
-              <label for="observacoes">Observações</label>
-              <textarea id="observacoes" rows="3"></textarea>
-            </div>
-
-            <div class="checkbox-group">
-              <input type="checkbox" id="ativo" checked />
-              <label for="ativo">Cliente ativo</label>
+            <!-- Informação -->
+            <div class="form-info">
+              <i class="fas fa-info-circle"></i>
+              <span>* Campos obrigatórios. Outros dados podem ser adicionados posteriormente na área de clientes.</span>
             </div>
           </form>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="closeModalCliente()">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            onclick="closeModalCliente()"
+          >
+            <i class="fas fa-times"></i>
             Cancelar
           </button>
-          <button class="btn" onclick="salvarCliente()">Salvar</button>
+          <button type="button" class="btn" onclick="salvarCliente()">
+            <i class="fas fa-save"></i>
+            Cadastrar Cliente
+          </button>
         </div>
       </div>
     </div>
@@ -213,72 +233,7 @@
     <script src="../js/auth.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/dashboard.js"></script>
-
-    <style>
-      .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        padding: 1rem;
-      }
-
-      .modal-content {
-        background: var(--beige);
-        border-radius: 12px;
-        max-width: 600px;
-        width: 100%;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: var(--shadow-xl);
-      }
-
-      .modal-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--beige-darker);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-
-      .modal-header h2 {
-        margin: 0;
-        font-size: 1.5rem;
-        color: var(--gray-dark);
-      }
-
-      .modal-close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: var(--gray-medium);
-        cursor: pointer;
-        padding: 0.5rem;
-      }
-
-      .modal-close:hover {
-        color: var(--gray-dark);
-      }
-
-      .modal-body {
-        padding: 1.5rem;
-      }
-
-      .modal-footer {
-        padding: 1.5rem;
-        border-top: 1px solid var(--beige-darker);
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-      }
-    </style>
-
+    <script src="../js/shared/masks.js"></script>
     <script>
       auth.requireAuth([ROLES.USUARIO]);
 
@@ -381,12 +336,29 @@
       }
 
       // Modal Novo Cliente
+      function charCount(str) { return str.replace(/\D/g, "").length; }
+
+      function ajustarMascaraCpfCnpj() {
+        const tipo = document.getElementById("tipoPessoa").value;
+        const input = document.getElementById("cpfCnpj");
+        
+        if (tipo === "PF") {
+          input.placeholder = "000.000.000-00";
+          input.setAttribute("maxlength", "14");
+        } else {
+          input.placeholder = "00.000.000/0000-00";
+          input.setAttribute("maxlength", "18");
+        }
+      }
+
+      // Modal Novo Cliente
       function openModalNovoCliente() {
         editingClienteId = null;
-        document.getElementById("modalTitle").textContent = "Novo Cliente";
         document.getElementById("formCliente").reset();
         document.getElementById("clienteId").value = "";
-        document.getElementById("ativo").checked = true;
+        // Default PF
+        document.getElementById("tipoPessoa").value = "PF";
+        ajustarMascaraCpfCnpj();
         document.getElementById("modalCliente").style.display = "flex";
       }
 
@@ -401,18 +373,18 @@
             const cliente = response.data;
             editingClienteId = id;
 
-            document.getElementById("modalTitle").textContent =
-              "Editar Cliente";
             document.getElementById("clienteId").value = id;
             document.getElementById("nome").value = cliente.nome;
             document.getElementById("email").value = cliente.email;
+            
+            // Detectar Tipo
+            const cleanDoc = (cliente.cpfCnpj || "").replace(/\D/g, "");
+            const tipo = cleanDoc.length > 11 ? "PJ" : "PF";
+            document.getElementById("tipoPessoa").value = tipo;
+            ajustarMascaraCpfCnpj();
+
             document.getElementById("cpfCnpj").value = cliente.cpfCnpj;
             document.getElementById("telefone").value = cliente.telefone || "";
-            document.getElementById("empresa").value = cliente.empresa || "";
-            document.getElementById("cargo").value = cliente.cargo || "";
-            document.getElementById("observacoes").value =
-              cliente.observacoes || "";
-            document.getElementById("ativo").checked = cliente.ativo;
 
             document.getElementById("modalCliente").style.display = "flex";
           }
@@ -448,11 +420,6 @@
           cpfCnpj: document.getElementById("cpfCnpj").value.replace(/\D/g, ""),
           telefone:
             document.getElementById("telefone").value.trim() || undefined,
-          empresa: document.getElementById("empresa").value.trim() || undefined,
-          cargo: document.getElementById("cargo").value.trim() || undefined,
-          observacoes:
-            document.getElementById("observacoes").value.trim() || undefined,
-          ativo: document.getElementById("ativo").checked,
         };
 
         try {
@@ -498,43 +465,6 @@
           handleError(error);
         }
       }
-      // Máscaras
-      document
-        .getElementById("telefone")
-        .addEventListener("input", function (e) {
-          let value = e.target.value.replace(/\D/g, "");
-          if (value.length <= 11) {
-            if (value.length <= 10) {
-              value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
-            } else {
-              value = value.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
-            }
-            e.target.value = value;
-          }
-        });
-
-      document
-        .getElementById("cpfCnpj")
-        .addEventListener("input", function (e) {
-          let value = e.target.value.replace(/\D/g, "");
-
-          if (value.length <= 11) {
-            // CPF
-            value = value.replace(
-              /(\d{3})(\d{3})(\d{3})(\d{0,2})/,
-              "$1.$2.$3-$4"
-            );
-          } else {
-            // CNPJ
-            value = value.slice(0, 14);
-            value = value.replace(
-              /(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/,
-              "$1.$2.$3/$4-$5"
-            );
-          }
-
-          e.target.value = value;
-        });
 
       loadClientes();
     </script>

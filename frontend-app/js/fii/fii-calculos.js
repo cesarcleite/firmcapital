@@ -302,10 +302,10 @@ function performCalculation() {
 
   // Custos FII
   const taxaAdmin =
-    parseFloat(document.getElementById("taxaAdmin").value) / 100;
+    parseFloat(document.getElementById("taxaAdmin").value.replace(',', '.')) / 100;
   const minAdmin = parseCurrencyInput(document.getElementById("minAdmin"));
   const taxaGestao =
-    parseFloat(document.getElementById("taxaGestao").value) / 100;
+    parseFloat(document.getElementById("taxaGestao").value.replace(',', '.')) / 100;
   const minGestao = parseCurrencyInput(document.getElementById("minGestao"));
   const taxaCustodia =
     parseFloat(document.getElementById("taxaCustodia").value) / 100;
